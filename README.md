@@ -93,6 +93,26 @@ flowchart TD
     G --> H
 ```
 
+## Getting Started
+
+### Deploying Contract (Optional)
+
+This project is scaffolded using [hardhat](https://hardhat.org/docs). Please refer to the documentation for more information on folder structure and configuration.
+
+```bash
+
+npm install
+
+npx hardhat keystore set PRIVATE_KEY
+
+npx hardhat compile
+
+npx hardhat ignition deploy ignition/modules/Afternote.ts --network sepolia
+
+# run end-to-end tests
+npx hardhat run --network sepolia scripts/e2e.ts
+```
+
 ## Why FHE is useful here
 
 Plain encryption alone is not enough for this use case. We also need a way to enforce who can decrypt and when that access becomes available.
