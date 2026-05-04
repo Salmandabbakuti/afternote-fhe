@@ -10,6 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ant-design/icons": "^6.2.2",
+    "@cofhe/sdk": "^0.5.2",
+    "@reown/appkit": "^1.8.19",
+    "@reown/appkit-adapter-ethers": "^1.8.19",
+    "@tanstack/react-router": "^1.169.1",
+    "@tanstack/react-router-devtools": "^1.166.13",
+    "antd": "^6.3.7",
+    "ethers": "^6.16.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5"
   },
@@ -17,6 +25,7 @@
     "@babel/core": "^7.29.0",
     "@eslint/js": "^10.0.1",
     "@rolldown/plugin-babel": "^0.2.3",
+    "@tanstack/router-plugin": "^1.167.32",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
