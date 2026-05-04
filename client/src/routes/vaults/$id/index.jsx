@@ -588,7 +588,7 @@ function VaultDetailsPage() {
                 />
                 <Paragraph type="secondary" style={{ marginBottom: 0 }}>
                   {isVaultReleased
-                    ? "Beneficiaries can continue to the decrypt page with the address added as a beneficiary."
+                    ? "Beneficiaries can decrypt this vault with the address added as a beneficiary."
                     : "Ping keeps the vault active and resets the 10 day release window."}
                 </Paragraph>
                 <Button
