@@ -1,0 +1,6 @@
+export const AFTERNOTE_CONTRACT_ADDRESS =
+  "0xE275FD2bcC1F11cd80a325EBe72F88a5Fbf0e51a";
+
+export const RELEASE_DELAY_SECONDS = 10 * 24 * 60 * 60;
+
+export const SEPOLIA_CHAIN_ID = "11155111";

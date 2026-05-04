@@ -156,6 +156,10 @@ contract Afternote {
 
     // ---------------- VIEW ----------------
 
+    function getVaults() external view returns (Vault[] memory) {
+        return vaults[msg.sender];
+    }
+
     function getVaultById(
         uint256 _vaultIndex
     ) external view returns (Vault memory) {

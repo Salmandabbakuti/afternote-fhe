@@ -1,7 +1,7 @@
 import { createAppKit } from "@reown/appkit/react";
 import { EthersAdapter } from "@reown/appkit-adapter-ethers";
 import { ConfigProvider, theme, App as AntdApp } from "antd";
-import { sepolia, mainnet } from "@reown/appkit/networks";
+import { sepolia } from "@reown/appkit/networks";
 
 const projectId = import.meta.env.VITE_REOWN_PROJECT_ID;
 
@@ -12,7 +12,7 @@ const metadata = {
   icons: ["https://avatars.githubusercontent.com/u/179229932"]
 };
 
-const networks = [sepolia, mainnet];
+const networks = [sepolia];
 
 createAppKit({
   adapters: [new EthersAdapter()],
