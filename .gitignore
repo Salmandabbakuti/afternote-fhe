@@ -6,13 +6,29 @@ bin-release/
 
 # Other files and folders
 .settings/
+node_modules/
+yarn.lock
 
 # Executables
 *.swf
 *.air
 *.ipa
 *.apk
+*.env
+.env
 
 # Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
 # should NOT be excluded as they contain compiler settings and other important
 # information for Eclipse / Flash Builder.
+.DS_Store
+
+#Hardhat files
+/dist
+cache
+artifacts/
+coverage/
+coverage.json
+typechain/
+typechain-types/
+/.gas-snapshot
+/snapshots
