@@ -48,11 +48,6 @@ export default function Vaults() {
     try {
       const ethersProvider = new BrowserProvider(walletProvider);
       const signer = await ethersProvider.getSigner();
-      console.log(
-        "Fetching vaults for account:",
-        account,
-        await signer.getAddress()
-      );
       const vaultsRes = await afternoteContract.connect(signer).getVaults();
 
       const vaults = vaultsRes?.length > 0 ? vaultsRes : [];

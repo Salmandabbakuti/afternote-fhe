@@ -208,7 +208,6 @@ export default function VaultDetails() {
         client.permits.removeActivePermit();
         await client.permits.getOrCreateSelfPermit();
       }
-      console.log(vault);
       const decryptedAesKey = await client
         .decryptForView(vault?.encryptedKeyHandle, FheTypes.Uint128)
         .execute();
