@@ -77,7 +77,7 @@ function VaultDetailsPage() {
 
   const limits = { beneficiaries: 3 };
   const { id } = Route.useParams();
-  const vaultIdx = id.split("-")[1];
+  const [vaultOwner, vaultIdx] = id.split("-");
   const { address: account, isConnected, caipAddress } = useAppKitAccount();
   // caipAddress format: eip155:<chainid>:<address>
   const selectedChainId = caipAddress?.split(":")[1];
@@ -86,21 +86,21 @@ function VaultDetailsPage() {
   const { message } = AntdApp.useApp();
 
   async function handleGetVault() {
-    if (!isConnected || selectedChainId !== SEPOLIA_CHAIN_ID) return;
     try {
       setLoading((prev) => ({ ...prev, read: true }));
-      const ethersProvider = new BrowserProvider(walletProvider);
-      const signer = await ethersProvider.getSigner();
-      const vaultRes = await afternoteContract
-        .connect(signer)
-        .getVaultById(vaultIdx);
+      const vaultRes = await afternoteContract.getVaultById(
+        vaultOwner,
+        vaultIdx
+      );
       const lastActiveAt = Number(vaultRes?.lastActiveAt);
       const releaseAt = lastActiveAt + RELEASE_DELAY_SECONDS;
       const vault = {
         encryptedKeyHandle: vaultRes.encryptedKey,
         encryptedIvHandle: vaultRes.encryptedIv,
         ciphertext: vaultRes.ciphertext,
-        beneficiaries: [...vaultRes.beneficiaries],
+        beneficiaries: vaultRes.beneficiaries,
+        owner: vaultOwner,
+        createdAt: Number(vaultRes?.createdAt),
         lastActiveAt,
         releaseAt,
         isReleased: vaultRes.isReleased
@@ -154,6 +154,8 @@ function VaultDetailsPage() {
 
   const vaultMetadata = getVaultMetadata(vault);
   const isVaultReleased = Boolean(vault?.isReleased);
+  const isOwner = vaultOwner?.toLowerCase() === account?.toLowerCase();
+  const isVaultReadOnly = !isOwner || isVaultReleased;
 
   function handleAddBeneficiary() {
     const value = beneficiaryInput.trim();
@@ -207,12 +209,12 @@ function VaultDetailsPage() {
       }
       console.log(vault);
       const decryptedAesKey = await client
-        .decryptForView(vault.encryptedKeyHandle, FheTypes.Uint128)
+        .decryptForView(vault?.encryptedKeyHandle, FheTypes.Uint128)
         .execute();
       const decryptedIv = await client
-        .decryptForView(vault.encryptedIvHandle, FheTypes.Uint128)
+        .decryptForView(vault?.encryptedIvHandle, FheTypes.Uint128)
         .execute();
-      const ciphertextBytes = hexToUint8Array(vault.ciphertext);
+      const ciphertextBytes = hexToUint8Array(vault?.ciphertext);
       const ivBytes = toBeArray(decryptedIv, 12);
       const aesKeyBytes = bigIntToUint8Array(decryptedAesKey);
       const note = await decryptText(ciphertextBytes, ivBytes, aesKeyBytes);
@@ -232,7 +234,7 @@ function VaultDetailsPage() {
     if (!isConnected || !walletProvider) {
       return message.error("Please connect your wallet first.");
     }
-    if (isVaultReleased) {
+    if (isVaultReadOnly) {
       return message.error("Cannot ping a read-only vault.");
     }
 
@@ -270,7 +272,7 @@ function VaultDetailsPage() {
       return message.error("Please connect your wallet first.");
     }
 
-    if (isVaultReleased) {
+    if (isVaultReadOnly) {
       return message.error("Cannot update a read-only vault.");
     }
 
@@ -339,7 +341,7 @@ function VaultDetailsPage() {
           { title: `Vault #${vaultIdx}` }
         ]}
       />
-      {isVaultReleased && (
+      {isVaultReadOnly && (
         <Alert
           showIcon
           closable
@@ -394,12 +396,12 @@ function VaultDetailsPage() {
                             "Please decrypt the vault before editing."
                           );
                         }
-                        setBeneficiaries(vault.beneficiaries || []);
+                        setBeneficiaries(vault?.beneficiaries || []);
                         setBeneficiaryInput("");
                         form.setFieldsValue({ note: decryptedNote });
                         setEditing(true);
                       }}
-                      disabled={isVaultReleased}
+                      disabled={isVaultReadOnly}
                     />
                     <Button
                       type="text"
@@ -597,7 +599,7 @@ function VaultDetailsPage() {
                   icon={<SyncOutlined />}
                   loading={loading.ping}
                   onClick={handlePing}
-                  disabled={isVaultReleased}
+                  disabled={isVaultReadOnly}
                 >
                   Ping
                 </Button>
