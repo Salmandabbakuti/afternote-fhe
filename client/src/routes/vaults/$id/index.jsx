@@ -35,7 +35,9 @@ import {
   SaveOutlined,
   SendOutlined,
   SyncOutlined,
-  UsergroupAddOutlined
+  UsergroupAddOutlined,
+  CalendarOutlined,
+  UserOutlined
 } from "@ant-design/icons";
 import {
   bigIntToUint8Array,
@@ -154,6 +156,9 @@ function VaultDetailsPage() {
 
   const vaultMetadata = getVaultMetadata(vault);
   const isVaultReleased = Boolean(vault?.isReleased);
+  const releaseAt = dayjs.unix(vault?.releaseAt);
+  const now = dayjs();
+  const canReleaseNow = !isVaultReleased && releaseAt.isBefore(now);
   const isOwner = vaultOwner?.toLowerCase() === account?.toLowerCase();
   const isVaultReadOnly = !isOwner || isVaultReleased;
 
@@ -264,6 +269,42 @@ function VaultDetailsPage() {
       );
     } finally {
       setLoading((prev) => ({ ...prev, ping: false }));
+    }
+  }
+
+  async function handleRelease() {
+    if (!isConnected || !walletProvider) {
+      return message.error("Please connect your wallet first.");
+    }
+
+    if (selectedChainId !== SEPOLIA_CHAIN_ID) {
+      return message.error("Please switch to Sepolia network.");
+    }
+
+    try {
+      setLoading((prev) => ({ ...prev, release: true }));
+
+      const ethersProvider = new BrowserProvider(walletProvider);
+      const signer = await ethersProvider.getSigner();
+      const tx = await afternoteContract
+        .connect(signer)
+        .release(vaultOwner, vaultIdx);
+      await tx.wait();
+
+      const now = dayjs().unix();
+      setVault((prev) => ({
+        ...prev,
+        isReleased: true,
+        releaseAt: now
+      }));
+      message.success("Vault released successfully.");
+    } catch (error) {
+      console.error("Failed to release vault:", error);
+      message.error(
+        `Failed to release vault. ${error?.shortMessage || error?.message || "Please try again later."}`
+      );
+    } finally {
+      setLoading((prev) => ({ ...prev, release: false }));
     }
   }
 
@@ -449,11 +490,20 @@ function VaultDetailsPage() {
                   }
                 >
                   <Text type="secondary" title="Updated At">
-                    <EditOutlined /> {formatTimestamp(vault.lastActiveAt)}
+                    <CalendarOutlined /> {formatTimestamp(vault?.createdAt)}
                   </Text>
-                  <Text type="secondary" title="Release At">
-                    <SendOutlined /> {formatTimestamp(vault.releaseAt)}
+                  <Text type="secondary" title="Updated At">
+                    <EditOutlined /> {formatTimestamp(vault?.lastActiveAt)}
                   </Text>
+                  {!isOwner && (
+                    <Text
+                      type="secondary"
+                      title="Owner"
+                      copyable={{ text: vaultOwner }}
+                    >
+                      <UserOutlined /> {ellipsisString(vaultOwner, 10, 6)}
+                    </Text>
+                  )}
                   <Text type="secondary" title="Beneficiaries">
                     <UsergroupAddOutlined /> {beneficiaries.length}
                   </Text>
@@ -591,18 +641,30 @@ function VaultDetailsPage() {
                 <Paragraph type="secondary" style={{ marginBottom: 0 }}>
                   {isVaultReleased
                     ? "Beneficiaries can decrypt this vault with the address added as a beneficiary."
-                    : "Ping keeps the vault active and resets the 10 day release window."}
+                    : `Ping keeps the vault active and resets the 10 day release window.  ${canReleaseNow ? "This vault has also passed its deadline, so anyone can release it now." : ""}`}
                 </Paragraph>
-                <Button
-                  type="primary"
-                  shape="round"
-                  icon={<SyncOutlined />}
-                  loading={loading.ping}
-                  onClick={handlePing}
-                  disabled={isVaultReadOnly}
-                >
-                  Ping
-                </Button>
+                <Space wrap>
+                  <Button
+                    type="primary"
+                    shape="round"
+                    icon={<SyncOutlined />}
+                    loading={loading.ping}
+                    onClick={handlePing}
+                    disabled={isVaultReadOnly}
+                  >
+                    Ping
+                  </Button>
+                  {canReleaseNow && (
+                    <Button
+                      shape="round"
+                      icon={<SendOutlined />}
+                      loading={loading.release}
+                      onClick={handleRelease}
+                    >
+                      Release
+                    </Button>
+                  )}
+                </Space>
                 <Divider style={{ margin: 0 }}>
                   <Text type="secondary">Timeline</Text>
                 </Divider>
@@ -612,6 +674,10 @@ function VaultDetailsPage() {
                   titlePlacement="vertical"
                   size="small"
                   items={[
+                    {
+                      title: "Note Created",
+                      content: formatTimestamp(vault.createdAt)
+                    },
                     {
                       title: "Last active",
                       content: formatTimestamp(vault.lastActiveAt)
