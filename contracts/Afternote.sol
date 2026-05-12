@@ -12,6 +12,7 @@ contract Afternote {
         euint128 encryptedIv;
         bytes ciphertext;
         address[] beneficiaries;
+        uint64 createdAt;
         uint64 lastActiveAt;
         bool isReleased;
     }
@@ -56,6 +57,7 @@ contract Afternote {
             "Beneficiaries limit exceeded"
         );
         uint256 vaultIndex = vaults[msg.sender].length;
+        uint64 blockTimestamp = uint64(block.timestamp);
 
         euint128 encryptedKey = FHE.asEuint128(_encryptedKeyValue);
         euint128 encryptedIv = FHE.asEuint128(_encryptedIvValue);
@@ -70,7 +72,8 @@ contract Afternote {
         vault.encryptedIv = encryptedIv;
         vault.ciphertext = _ciphertext;
         vault.beneficiaries = _beneficiaries;
-        vault.lastActiveAt = uint64(block.timestamp);
+        vault.createdAt = blockTimestamp;
+        vault.lastActiveAt = blockTimestamp;
 
         emit VaultAdded(
             vaultIndex,
@@ -130,7 +133,7 @@ contract Afternote {
         emit VaultPinged(_vaultIndex, msg.sender);
     }
 
-    function release(uint256 _vaultIndex, address _owner) external {
+    function release(address _owner, uint256 _vaultIndex) external {
         require(_vaultIndex < vaults[_owner].length, "Invalid vault index");
 
         Vault storage vault = vaults[_owner][_vaultIndex];
@@ -161,9 +164,10 @@ contract Afternote {
     }
 
     function getVaultById(
+        address _user,
         uint256 _vaultIndex
     ) external view returns (Vault memory) {
-        require(_vaultIndex < vaults[msg.sender].length, "Invalid vault index");
-        return vaults[msg.sender][_vaultIndex];
+        require(_vaultIndex < vaults[_user].length, "Invalid vault index");
+        return vaults[_user][_vaultIndex];
     }
 }
