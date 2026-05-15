@@ -169,19 +169,18 @@ export default function Vaults() {
         }
       >
         <Table
-          rowKey="id"
           loading={loading}
           dataSource={vaults}
           columns={columns}
           scroll={{ x: "max-content" }}
+          rowKey={(_, idx) => `${account}-${idx}`}
           pagination={{
             responsive: true,
             hideOnSinglePage: true,
             showLessItems: true,
             pageSizeOptions: [5, 10, 25, 50, 100],
             showSizeChanger: true,
-            defaultPageSize: 10,
-            simple: true
+            defaultPageSize: 10
           }}
           locale={{
             emptyText: (

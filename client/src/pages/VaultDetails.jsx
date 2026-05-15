@@ -92,11 +92,12 @@ export default function VaultDetails() {
       );
       const lastActiveAt = Number(vaultRes?.lastActiveAt);
       const releaseAt = lastActiveAt + RELEASE_DELAY_SECONDS;
+      const beneficiaries = [...vaultRes.beneficiaries]; //spread is needed for normalizing proxy result
       const vault = {
         encryptedKeyHandle: vaultRes.encryptedKey,
         encryptedIvHandle: vaultRes.encryptedIv,
         ciphertext: vaultRes.ciphertext,
-        beneficiaries: vaultRes.beneficiaries,
+        beneficiaries,
         owner: vaultOwner,
         createdAt: Number(vaultRes?.createdAt),
         lastActiveAt,
@@ -104,7 +105,7 @@ export default function VaultDetails() {
         isReleased: vaultRes.isReleased
       };
       setVault(vault);
-      setBeneficiaries(vaultRes?.beneficiaries || []);
+      setBeneficiaries(beneficiaries);
     } catch (error) {
       console.error("Failed to fetch vault:", error);
       message.error("Failed to get Vault. Please try again later.");
@@ -329,13 +330,14 @@ export default function VaultDetails() {
       const aesKeyBigInt = uint8ArrayToBigInt(aesKeyBytes);
       const ivBigInt = uint8ArrayToBigInt(ivBytes);
       const cipherTextHex = uint8ArrayToHex(cipherTextBytes);
-
+      console.log("Note encrypted locally, encrypting keys...");
       const [encryptedKeyInput, encryptedIvInput] = await client
         .encryptInputs([
           Encryptable.uint128(aesKeyBigInt),
           Encryptable.uint128(ivBigInt)
         ])
         .execute();
+      console.log("Keys encrypted, sending transaction to update vault...");
       const tx = await afternoteContract
         .connect(signer)
         .updateVault(

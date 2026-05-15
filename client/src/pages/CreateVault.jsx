@@ -96,6 +96,7 @@ export default function CreateVault() {
       const aesKeyBigInt = uint8ArrayToBigInt(aesKeyBytes);
       const ivBigInt = uint8ArrayToBigInt(ivBytes);
       const cipherTextHex = uint8ArrayToHex(cipherTextBytes);
+      console.log("Note encrypted locally, encrypting keys...");
 
       const [encryptedKeyInput, encryptedIvInput] = await client
         .encryptInputs([
@@ -103,6 +104,7 @@ export default function CreateVault() {
           Encryptable.uint128(ivBigInt)
         ])
         .execute();
+      console.log("Keys encrypted, sending transaction to create vault...");
 
       const tx = await afternoteContract
         .connect(signer)
