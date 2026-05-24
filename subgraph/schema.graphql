@@ -1,0 +1,45 @@
+type VaultAdded @entity(immutable: true) {
+  id: Bytes!
+  idx: BigInt! # uint256
+  owner: Bytes! # address
+  encryptedKeyHandle: Bytes! # bytes32
+  encryptedIvHandle: Bytes! # bytes32
+  ciphertext: Bytes! # bytes
+  beneficiaries: [Bytes!]! # address[]
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type VaultPinged @entity(immutable: true) {
+  id: Bytes!
+  idx: BigInt! # uint256
+  owner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type VaultReleased @entity(immutable: true) {
+  id: Bytes!
+  idx: BigInt! # uint256
+  owner: Bytes! # address
+  caller: Bytes! # address
+  beneficiaries: [Bytes!]! # address[]
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type VaultUpdated @entity(immutable: true) {
+  id: Bytes!
+  idx: BigInt! # uint256
+  owner: Bytes! # address
+  encryptedKeyHandle: Bytes! # bytes32
+  encryptedIvHandle: Bytes! # bytes32
+  ciphertext: Bytes! # bytes
+  beneficiaries: [Bytes!]! # address[]
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
