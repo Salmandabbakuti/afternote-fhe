@@ -8,7 +8,7 @@ type Vault @entity(immutable: false) {
   owner: Bytes!
   isReleased: Boolean!
   lastActiveAt: BigInt!
+  releaseAt: BigInt!
   createdAt: BigInt!
   updatedAt: BigInt!
-  releaseAt: BigInt!
 }
