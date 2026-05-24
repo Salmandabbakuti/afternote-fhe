@@ -16,10 +16,7 @@ dataSources:
       apiVersion: 0.0.9
       language: wasm/assemblyscript
       entities:
-        - VaultAdded
-        - VaultPinged
-        - VaultReleased
-        - VaultUpdated
+        - Vault
       abis:
         - name: Afternote
           file: ./abis/Afternote.json
