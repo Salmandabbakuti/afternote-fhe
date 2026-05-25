@@ -9,7 +9,10 @@ import {
   hexlify,
   getBytes
 } from "ethers";
-import { AFTERNOTE_CONTRACT_ADDRESS } from "./constants";
+import { GraphQLClient } from "graphql-request";
+import { AFTERNOTE_CONTRACT_ADDRESS, SUBGRAPH_URL } from "./constants";
+
+export const subgraphClient = new GraphQLClient(SUBGRAPH_URL);
 
 export const sepoliaProvider = new JsonRpcProvider(
   "https://sepolia.drpc.org",

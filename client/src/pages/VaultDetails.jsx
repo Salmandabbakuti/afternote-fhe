@@ -48,9 +48,14 @@ import {
   uint8ArrayToBigInt,
   uint8ArrayToHex,
   ellipsisString,
-  afternoteContract
+  afternoteContract,
+  subgraphClient
 } from "@/utils";
-import { RELEASE_DELAY_SECONDS, SEPOLIA_CHAIN_ID } from "@/utils/constants";
+import {
+  RELEASE_DELAY_SECONDS,
+  GET_VAULT_BY_ID_QUERY,
+  SEPOLIA_CHAIN_ID
+} from "@/utils/constants";
 import { getVaultMetadata } from "@/utils";
 
 const { Paragraph, Text, Title } = Typography;
@@ -86,26 +91,9 @@ export default function VaultDetails() {
   async function handleGetVault() {
     try {
       setLoading((prev) => ({ ...prev, read: true }));
-      const vaultRes = await afternoteContract.getVaultById(
-        vaultOwner,
-        vaultIdx
-      );
-      const lastActiveAt = Number(vaultRes?.lastActiveAt);
-      const releaseAt = lastActiveAt + RELEASE_DELAY_SECONDS;
-      const beneficiaries = [...vaultRes.beneficiaries]; //spread is needed for normalizing proxy result
-      const vault = {
-        encryptedKeyHandle: vaultRes.encryptedKey,
-        encryptedIvHandle: vaultRes.encryptedIv,
-        ciphertext: vaultRes.ciphertext,
-        beneficiaries,
-        owner: vaultOwner,
-        createdAt: Number(vaultRes?.createdAt),
-        lastActiveAt,
-        releaseAt,
-        isReleased: vaultRes.isReleased
-      };
-      setVault(vault);
-      setBeneficiaries(beneficiaries);
+      const data = await subgraphClient.request(GET_VAULT_BY_ID_QUERY, { id });
+      setVault(data?.vault);
+      setBeneficiaries(data?.vault?.beneficiaries || []);
     } catch (error) {
       console.error("Failed to fetch vault:", error);
       message.error("Failed to get Vault. Please try again later.");
