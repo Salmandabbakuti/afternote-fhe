@@ -12,11 +12,18 @@ import {
   Typography,
   Breadcrumb,
   Empty,
+  Flex,
+  Select,
   App as AntdApp
 } from "antd";
-import { PlusOutlined, SyncOutlined } from "@ant-design/icons";
-import { ellipsisString } from "@/utils";
-import { getVaultMetadata, subgraphClient } from "@/utils";
+import { PlusOutlined, SyncOutlined, SwapOutlined } from "@ant-design/icons";
+import { ellipsisString, subgraphClient } from "@/utils";
+import {
+  VAULT_STATUS_OPTIONS,
+  VAULT_STATUS,
+  getVaultMetadata,
+  buildVaultStatusWhere
+} from "@/utils/vaultUtils";
 import { GET_VAULTS_QUERY } from "@/utils/constants";
 
 const { Text } = Typography;
@@ -30,6 +37,8 @@ function formatTimestamp(timestamp) {
 export default function Vaults() {
   const [vaults, setVaults] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [vaultFilter, setVaultFilter] = useState(VAULT_STATUS.ALL);
+  const [sortOption, setSortOption] = useState("createdAt_desc");
 
   const navigate = useNavigate();
   const { address: account, isConnected } = useAppKitAccount();
@@ -44,12 +53,14 @@ export default function Vaults() {
     setLoading(true);
 
     try {
+      const vaultsWhere = buildVaultStatusWhere(vaultFilter, account);
+      const [orderBy, orderDirection] = sortOption.split("_");
       const data = await subgraphClient.request(GET_VAULTS_QUERY, {
         first: 50,
         skip: 0,
-        orderBy: "createdAt",
-        orderDirection: "desc",
-        where: { owner: account?.toLowerCase() }
+        orderBy,
+        orderDirection,
+        where: vaultsWhere
       });
 
       setVaults(data?.vaults || []);
@@ -63,7 +74,7 @@ export default function Vaults() {
 
   useEffect(() => {
     getVaults();
-  }, [account]);
+  }, [account, vaultFilter, sortOption]);
 
   const columns = [
     {
@@ -176,6 +187,54 @@ export default function Vaults() {
           </Space>
         }
       >
+        <Flex
+          gap={12}
+          justify="space-between"
+          align="center"
+          wrap
+          style={{ marginBottom: 16 }}
+        >
+          <Space wrap>
+            {VAULT_STATUS_OPTIONS.map((filter) => (
+              <Button
+                key={filter.id}
+                size="small"
+                shape="round"
+                type={vaultFilter === filter.id ? "primary" : "default"}
+                onClick={() => setVaultFilter(filter.id)}
+              >
+                {filter.name}
+              </Button>
+            ))}
+          </Space>
+
+          <Select
+            prefix={
+              <SwapOutlined
+                style={{
+                  transform: "rotate(90deg) scaleY(-1)"
+                }}
+              />
+            }
+            defaultValue={sortOption}
+            value={sortOption}
+            style={{
+              width: 180,
+              maxWidth: "100%",
+              marginLeft: "auto"
+            }}
+            placeholder="Sort by"
+            options={[
+              { value: "createdAt_desc", label: "Newest First" },
+              { value: "createdAt_asc", label: "Oldest First" },
+              { value: "lastActiveAt_desc", label: "Most Active" },
+              { value: "lastActiveAt_asc", label: "Least Active" },
+              { value: "releaseAt_asc", label: "Nearing Release" },
+              { value: "releaseAt_desc", label: "Furthest Release" }
+            ]}
+            onChange={setSortOption}
+          />
+        </Flex>
         <Table
           loading={loading}
           dataSource={vaults}

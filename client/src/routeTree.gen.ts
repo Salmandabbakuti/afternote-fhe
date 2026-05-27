@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as VaultsIndexRouteImport } from './routes/vaults/index'
 import { Route as VaultsCreateRouteImport } from './routes/vaults/create'
 import { Route as VaultsIdIndexRouteImport } from './routes/vaults/$id/index'
+import { Route as VaultsIdDecryptRouteImport } from './routes/vaults/$id/decrypt'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,17 +35,24 @@ const VaultsIdIndexRoute = VaultsIdIndexRouteImport.update({
   path: '/vaults/$id/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VaultsIdDecryptRoute = VaultsIdDecryptRouteImport.update({
+  id: '/vaults/$id/decrypt',
+  path: '/vaults/$id/decrypt',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/vaults/create': typeof VaultsCreateRoute
   '/vaults/': typeof VaultsIndexRoute
+  '/vaults/$id/decrypt': typeof VaultsIdDecryptRoute
   '/vaults/$id/': typeof VaultsIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/vaults/create': typeof VaultsCreateRoute
   '/vaults': typeof VaultsIndexRoute
+  '/vaults/$id/decrypt': typeof VaultsIdDecryptRoute
   '/vaults/$id': typeof VaultsIdIndexRoute
 }
 export interface FileRoutesById {
@@ -52,20 +60,33 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/vaults/create': typeof VaultsCreateRoute
   '/vaults/': typeof VaultsIndexRoute
+  '/vaults/$id/decrypt': typeof VaultsIdDecryptRoute
   '/vaults/$id/': typeof VaultsIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/vaults/create' | '/vaults/' | '/vaults/$id/'
+  fullPaths:
+    | '/'
+    | '/vaults/create'
+    | '/vaults/'
+    | '/vaults/$id/decrypt'
+    | '/vaults/$id/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/vaults/create' | '/vaults' | '/vaults/$id'
-  id: '__root__' | '/' | '/vaults/create' | '/vaults/' | '/vaults/$id/'
+  to: '/' | '/vaults/create' | '/vaults' | '/vaults/$id/decrypt' | '/vaults/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/vaults/create'
+    | '/vaults/'
+    | '/vaults/$id/decrypt'
+    | '/vaults/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   VaultsCreateRoute: typeof VaultsCreateRoute
   VaultsIndexRoute: typeof VaultsIndexRoute
+  VaultsIdDecryptRoute: typeof VaultsIdDecryptRoute
   VaultsIdIndexRoute: typeof VaultsIdIndexRoute
 }
 
@@ -99,6 +120,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VaultsIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/vaults/$id/decrypt': {
+      id: '/vaults/$id/decrypt'
+      path: '/vaults/$id/decrypt'
+      fullPath: '/vaults/$id/decrypt'
+      preLoaderRoute: typeof VaultsIdDecryptRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -106,6 +134,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   VaultsCreateRoute: VaultsCreateRoute,
   VaultsIndexRoute: VaultsIndexRoute,
+  VaultsIdDecryptRoute: VaultsIdDecryptRoute,
   VaultsIdIndexRoute: VaultsIdIndexRoute,
 }
 export const routeTree = rootRouteImport

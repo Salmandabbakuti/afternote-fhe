@@ -101,15 +101,6 @@ export const afternoteContract = new Contract(
   sepoliaProvider
 );
 
-export const getVaultMetadata = (vault) => {
-  const label = vault?.isReleased ? "Released" : "Active";
-  return {
-    status: label.toLowerCase(),
-    label,
-    color: vault?.isReleased ? "blue" : "green"
-  };
-};
-
 export const ellipsisString = (str, start = 6, end = 4) => {
   if (str.length <= start + end) return str;
   return `${str.slice(0, start)}...${str.slice(-end)}`;

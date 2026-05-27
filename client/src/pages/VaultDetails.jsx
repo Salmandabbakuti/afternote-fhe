@@ -27,6 +27,7 @@ import {
 } from "antd";
 import {
   ArrowLeftOutlined,
+  ArrowRightOutlined,
   DeleteOutlined,
   EditOutlined,
   LockOutlined,
@@ -56,7 +57,7 @@ import {
   GET_VAULT_BY_ID_QUERY,
   SEPOLIA_CHAIN_ID
 } from "@/utils/constants";
-import { getVaultMetadata } from "@/utils";
+import { getVaultMetadata } from "@/utils/vaultUtils";
 
 const { Paragraph, Text, Title } = Typography;
 
@@ -486,7 +487,7 @@ export default function VaultDetails() {
                       title="Owner"
                       copyable={{ text: vaultOwner }}
                     >
-                      <UserOutlined /> {ellipsisString(vaultOwner, 10, 6)}
+                      <UserOutlined /> {ellipsisString(vaultOwner, 6, 4)}
                     </Text>
                   )}
                   <Text type="secondary" title="Beneficiaries">
@@ -648,6 +649,17 @@ export default function VaultDetails() {
                     >
                       Release
                     </Button>
+                  )}
+                  {isVaultReleased && (
+                    <Link to="/vaults/$id/decrypt" params={{ id }}>
+                      <Button
+                        type={"primary"}
+                        shape="round"
+                        icon={<ArrowRightOutlined />}
+                      >
+                        Decrypt
+                      </Button>
+                    </Link>
                   )}
                 </Space>
                 <Divider style={{ margin: 0 }}>
