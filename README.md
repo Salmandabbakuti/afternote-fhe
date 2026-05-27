@@ -20,19 +20,27 @@ The MVP is now functional with core features deployed and integrated:
 **Frontend Client (React + Vite)**
 
 - Landing page with onboarding flow and Web3 wallet integration
-- Vaults list view with all user vaults
+- Vaults list view with status filtering and sort controls
 - Vault creation page with beneficiary selection
 - Vault details page with metadata, timeline, and actions
+- Vault decrypt page with guided UI for beneficiary recovery
 - Ping action to reset inactivity timer
 - Update vault functionality
-- Decrypt action for released vaults
 - Reown AppKit integration for wallet connectivity
 - Ant Design component library for polished UI
+- Version: v0.0.4
+
+**Indexing Layer (The Graph Subgraph)**
+
+- Vault event indexing (VaultAdded, VaultUpdated, VaultPinged, VaultReleased)
+- GraphQL API for efficient vault querying and filtering
+- Deterministic vault ID generation and release timestamp computation
 
 **Tech Stack**
 
 - Contract: Solidity 0.8.34 with FHE primitives (CoFHE SDK from Fhenix)
-- Frontend: React 19, Vite, TanStack Router, Ant Design
+- Frontend: React 19, Vite, TanStack Router, Ant Design, GraphQL-Request
+- Indexing: The Graph Subgraph (AssemblyScript) on Sepolia
 - Cryptography: Client-side AES-128 encryption, FHE-based access control
 - Web3: ethers.js v6, Reown AppKit for wallet management
 
@@ -123,9 +131,21 @@ The frontend handles user interactions and cryptographic operations before data 
 Current pages:
 
 - Landing page: Onboarding and wallet connection
-- Vaults list: Overview of all vaults with status indicators
+- Vaults list: Overview of all vaults with status indicators, filtering, and sorting
 - Create vault: Form to add beneficiaries and encrypt content
 - Vault details: View status, take actions (ping/update/decrypt), see timeline
+- Vault decrypt: Guided decryption interface for beneficiaries with vault metadata
+
+**Vault Status Guide:**
+
+Understanding vault statuses helps users manage their vaults and track unlock readiness:
+
+- **Active** (green): Vault is regularly pinged and not approaching unlock. Beneficiaries will not gain access for an extended period.
+- **Warning** (orange): Vault is nearing the 10-day inactivity threshold. Owner should ping soon to prevent accidental unlock. Beneficiaries will gain access within 3 days if no activity occurs.
+- **Overdue** (red): Inactivity threshold has been exceeded. Vault is eligible for beneficiary access. Owner can still ping to reset the timer, or beneficiaries can request release.
+- **Released** (blue): Vault has been unlocked and beneficiaries now have access to decrypt the content. No further modifications possible.
+- **Personal** (cyan): Vault owned by user with no beneficiaries configured. Acts as a secure personal note storage without recovery delegation.
+- **Received** (badge): Vault is shared with user as a beneficiary. Shows vaults from other owners where user can decrypt content if released.
 
 ### 2. Smart Contract Layer (Fhenix Blockchain)
 
@@ -224,10 +244,11 @@ Exit criteria met:
 
 - One user can create notes, stay active with `ping()`, and let a beneficiary recover a note after the unlock condition is met.
 
-### Milestone 2: Smart Filtering, Beneficiary UX, and Auto Unlock (IN PROGRESS)
+### Milestone 2: Smart Filtering, Beneficiary UX, and Auto Unlock (PHASE 1 IN PROGRESS)
 
-Planned additions:
+Phase 1 delivered features (Wave 5):
 
+- Subgraph-backed vault indexing and GraphQL queries
 - Vault status filtering on client:
   - Active: Recently pinged
   - Warning: Approaching inactivity threshold
@@ -235,11 +256,16 @@ Planned additions:
   - Released: Already unlocked
   - Personal: Vaults I own
   - Received: Vaults shared with me as beneficiary
+- Vault list sorting (newest first, oldest first, most active, nearing release, etc.)
+- "Created / Updated" column in vault list
 - Dedicated beneficiary decrypt page with:
   - Vault origin and owner information
-  - Unlock timeline and countdown
-  - Decryption interface
-  - Clear explanation of why they received it
+  - Unlock timeline and display
+  - Decryption interface powered by FHE self-permit flow
+  - Clear explanation of vault purpose
+
+Phase 2 planned additions:
+
 - Permissionless release (anyone can trigger unlock after threshold)
 - Oracle/Upkeep integration for automated release
 - Email notifications:
