@@ -9,7 +9,10 @@ import {
   hexlify,
   getBytes
 } from "ethers";
-import { AFTERNOTE_CONTRACT_ADDRESS } from "./constants";
+import { GraphQLClient } from "graphql-request";
+import { AFTERNOTE_CONTRACT_ADDRESS, SUBGRAPH_URL } from "./constants";
+
+export const subgraphClient = new GraphQLClient(SUBGRAPH_URL);
 
 export const sepoliaProvider = new JsonRpcProvider(
   "https://sepolia.drpc.org",
@@ -97,15 +100,6 @@ export const afternoteContract = new Contract(
   AFTERNOTE_ABI,
   sepoliaProvider
 );
-
-export const getVaultMetadata = (vault) => {
-  const label = vault?.isReleased ? "Released" : "Active";
-  return {
-    status: label.toLowerCase(),
-    label,
-    color: vault?.isReleased ? "blue" : "green"
-  };
-};
 
 export const ellipsisString = (str, start = 6, end = 4) => {
   if (str.length <= start + end) return str;

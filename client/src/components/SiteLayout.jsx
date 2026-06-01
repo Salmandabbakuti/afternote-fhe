@@ -75,7 +75,7 @@ export default function SiteLayout({ children }) {
             fontWeight: 500
           }}
         >
-          v0.0.3
+          v0.0.4
         </p>
       </Footer>
     </Layout>

@@ -1,0 +1,334 @@
+[
+  {
+    "inputs": [
+      { "internalType": "uint8", "name": "got", "type": "uint8" },
+      { "internalType": "uint8", "name": "expected", "type": "uint8" }
+    ],
+    "name": "InvalidEncryptedInput",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "idx",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "encryptedKeyHandle",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "encryptedIvHandle",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "ciphertext",
+        "type": "bytes"
+      },
+      {
+        "indexed": false,
+        "internalType": "address[]",
+        "name": "beneficiaries",
+        "type": "address[]"
+      }
+    ],
+    "name": "VaultAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "idx",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "VaultPinged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "idx",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address[]",
+        "name": "beneficiaries",
+        "type": "address[]"
+      }
+    ],
+    "name": "VaultReleased",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "idx",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "encryptedKeyHandle",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "encryptedIvHandle",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "ciphertext",
+        "type": "bytes"
+      },
+      {
+        "indexed": false,
+        "internalType": "address[]",
+        "name": "beneficiaries",
+        "type": "address[]"
+      }
+    ],
+    "name": "VaultUpdated",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          { "internalType": "uint256", "name": "ctHash", "type": "uint256" },
+          { "internalType": "uint8", "name": "securityZone", "type": "uint8" },
+          { "internalType": "uint8", "name": "utype", "type": "uint8" },
+          { "internalType": "bytes", "name": "signature", "type": "bytes" }
+        ],
+        "internalType": "struct InEuint128",
+        "name": "_encryptedKeyValue",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          { "internalType": "uint256", "name": "ctHash", "type": "uint256" },
+          { "internalType": "uint8", "name": "securityZone", "type": "uint8" },
+          { "internalType": "uint8", "name": "utype", "type": "uint8" },
+          { "internalType": "bytes", "name": "signature", "type": "bytes" }
+        ],
+        "internalType": "struct InEuint128",
+        "name": "_encryptedIvValue",
+        "type": "tuple"
+      },
+      { "internalType": "bytes", "name": "_ciphertext", "type": "bytes" },
+      {
+        "internalType": "address[]",
+        "name": "_beneficiaries",
+        "type": "address[]"
+      }
+    ],
+    "name": "addVault",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_user", "type": "address" },
+      { "internalType": "uint256", "name": "_vaultIndex", "type": "uint256" }
+    ],
+    "name": "getVaultById",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "euint128",
+            "name": "encryptedKey",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "euint128",
+            "name": "encryptedIv",
+            "type": "bytes32"
+          },
+          { "internalType": "bytes", "name": "ciphertext", "type": "bytes" },
+          {
+            "internalType": "address[]",
+            "name": "beneficiaries",
+            "type": "address[]"
+          },
+          { "internalType": "uint64", "name": "createdAt", "type": "uint64" },
+          {
+            "internalType": "uint64",
+            "name": "lastActiveAt",
+            "type": "uint64"
+          },
+          { "internalType": "bool", "name": "isReleased", "type": "bool" }
+        ],
+        "internalType": "struct Afternote.Vault",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getVaults",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "euint128",
+            "name": "encryptedKey",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "euint128",
+            "name": "encryptedIv",
+            "type": "bytes32"
+          },
+          { "internalType": "bytes", "name": "ciphertext", "type": "bytes" },
+          {
+            "internalType": "address[]",
+            "name": "beneficiaries",
+            "type": "address[]"
+          },
+          { "internalType": "uint64", "name": "createdAt", "type": "uint64" },
+          {
+            "internalType": "uint64",
+            "name": "lastActiveAt",
+            "type": "uint64"
+          },
+          { "internalType": "bool", "name": "isReleased", "type": "bool" }
+        ],
+        "internalType": "struct Afternote.Vault[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "_vaultIndex", "type": "uint256" }
+    ],
+    "name": "ping",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_owner", "type": "address" },
+      { "internalType": "uint256", "name": "_vaultIndex", "type": "uint256" }
+    ],
+    "name": "release",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "_vaultIndex", "type": "uint256" },
+      {
+        "components": [
+          { "internalType": "uint256", "name": "ctHash", "type": "uint256" },
+          { "internalType": "uint8", "name": "securityZone", "type": "uint8" },
+          { "internalType": "uint8", "name": "utype", "type": "uint8" },
+          { "internalType": "bytes", "name": "signature", "type": "bytes" }
+        ],
+        "internalType": "struct InEuint128",
+        "name": "_encryptedKeyValue",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          { "internalType": "uint256", "name": "ctHash", "type": "uint256" },
+          { "internalType": "uint8", "name": "securityZone", "type": "uint8" },
+          { "internalType": "uint8", "name": "utype", "type": "uint8" },
+          { "internalType": "bytes", "name": "signature", "type": "bytes" }
+        ],
+        "internalType": "struct InEuint128",
+        "name": "_encryptedIvValue",
+        "type": "tuple"
+      },
+      { "internalType": "bytes", "name": "_ciphertext", "type": "bytes" },
+      {
+        "internalType": "address[]",
+        "name": "_beneficiaries",
+        "type": "address[]"
+      }
+    ],
+    "name": "updateVault",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "", "type": "address" },
+      { "internalType": "uint256", "name": "", "type": "uint256" }
+    ],
+    "name": "vaults",
+    "outputs": [
+      { "internalType": "euint128", "name": "encryptedKey", "type": "bytes32" },
+      { "internalType": "euint128", "name": "encryptedIv", "type": "bytes32" },
+      { "internalType": "bytes", "name": "ciphertext", "type": "bytes" },
+      { "internalType": "uint64", "name": "createdAt", "type": "uint64" },
+      { "internalType": "uint64", "name": "lastActiveAt", "type": "uint64" },
+      { "internalType": "bool", "name": "isReleased", "type": "bool" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

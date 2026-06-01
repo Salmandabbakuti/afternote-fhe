@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useNavigate, Link } from "@tanstack/react-router";
-import { useAppKitAccount, useAppKitProvider } from "@reown/appkit/react";
-import { BrowserProvider } from "ethers";
+import { useAppKitAccount } from "@reown/appkit/react";
 import {
   Button,
   Card,
@@ -13,12 +12,19 @@ import {
   Typography,
   Breadcrumb,
   Empty,
+  Flex,
+  Select,
   App as AntdApp
 } from "antd";
-import { PlusOutlined, SyncOutlined } from "@ant-design/icons";
-import { afternoteContract, ellipsisString } from "@/utils";
-import { getVaultMetadata } from "@/utils";
-import { RELEASE_DELAY_SECONDS } from "@/utils/constants";
+import { PlusOutlined, SyncOutlined, SwapOutlined } from "@ant-design/icons";
+import { ellipsisString, subgraphClient } from "@/utils";
+import {
+  VAULT_STATUS_OPTIONS,
+  VAULT_STATUS,
+  getVaultMetadata,
+  buildVaultStatusWhere
+} from "@/utils/vaultUtils";
+import { GET_VAULTS_QUERY } from "@/utils/constants";
 
 const { Text } = Typography;
 
@@ -31,11 +37,12 @@ function formatTimestamp(timestamp) {
 export default function Vaults() {
   const [vaults, setVaults] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [vaultFilter, setVaultFilter] = useState(VAULT_STATUS.ALL);
+  const [sortOption, setSortOption] = useState("createdAt_desc");
 
   const navigate = useNavigate();
   const { address: account, isConnected } = useAppKitAccount();
   const { message } = AntdApp.useApp();
-  const { walletProvider } = useAppKitProvider("eip155");
 
   async function getVaults() {
     if (!account) {
@@ -46,12 +53,17 @@ export default function Vaults() {
     setLoading(true);
 
     try {
-      const ethersProvider = new BrowserProvider(walletProvider);
-      const signer = await ethersProvider.getSigner();
-      const vaultsRes = await afternoteContract.connect(signer).getVaults();
+      const vaultsWhere = buildVaultStatusWhere(vaultFilter, account);
+      const [orderBy, orderDirection] = sortOption.split("_");
+      const data = await subgraphClient.request(GET_VAULTS_QUERY, {
+        first: 50,
+        skip: 0,
+        orderBy,
+        orderDirection,
+        where: vaultsWhere
+      });
 
-      const vaults = vaultsRes?.length > 0 ? vaultsRes : [];
-      setVaults(vaults);
+      setVaults(data?.vaults || []);
     } catch (error) {
       console.error("Error loading vaults:", error);
       message.error("Failed to load vaults. Please try again later.");
@@ -62,14 +74,15 @@ export default function Vaults() {
 
   useEffect(() => {
     getVaults();
-  }, [account]);
+  }, [account, vaultFilter, sortOption]);
 
   const columns = [
     {
       title: "ID",
+      dataIndex: "idx",
       key: "idx",
       // sorter: (a, b) => a.idx - b.idx,
-      render: (_, __, idx) => <Text strong>{`Vault #${idx}`}</Text>
+      render: (idx) => <Text strong>{`Vault #${idx}`}</Text>
     },
     {
       title: "Status",
@@ -106,13 +119,10 @@ export default function Vaults() {
       key: "lastActiveAt",
       // sorter: (a, b) => a.lastActiveAt - b.lastActiveAt,
       render: (lastActiveAt) => {
-        const lastActiveAtNumber = Number(lastActiveAt);
         return (
           <Space orientation="vertical" size={0}>
-            <Text>{formatTimestamp(lastActiveAtNumber)}</Text>
-            <Text type="secondary">
-              {dayjs.unix(lastActiveAtNumber).fromNow()}
-            </Text>
+            <Text>{formatTimestamp(lastActiveAt)}</Text>
+            <Text type="secondary">{dayjs.unix(lastActiveAt).fromNow()}</Text>
           </Space>
         );
       }
@@ -121,20 +131,29 @@ export default function Vaults() {
       title: "Release At",
       key: "releaseAt",
       // sorter: (a, b) => a.releaseAt - b.releaseAt,
-      render: (vault) => {
-        const releaseAt = Number(vault?.lastActiveAt) + RELEASE_DELAY_SECONDS;
-
+      render: ({ releaseAt, beneficiaries }) => {
         return (
           <Space orientation="vertical" size={0}>
             <Text>{formatTimestamp(releaseAt)}</Text>
             <Text type="secondary">
-              {vault?.beneficiaries.length === 0
+              {beneficiaries.length === 0
                 ? "No beneficiaries configured"
                 : dayjs.unix(releaseAt).fromNow()}
             </Text>
           </Space>
         );
       }
+    },
+    {
+      title: "Created / Updated",
+      key: "createdUpdated",
+      // sorter: (a, b) => a.createdAt - b.createdAt,
+      render: ({ createdAt, updatedAt }) => (
+        <Space orientation="vertical" size={0}>
+          <Text type="secondary">{formatTimestamp(createdAt)}</Text>
+          <Text type="secondary">{formatTimestamp(updatedAt)}</Text>
+        </Space>
+      )
     }
   ];
 
@@ -168,12 +187,60 @@ export default function Vaults() {
           </Space>
         }
       >
+        <Flex
+          gap={12}
+          justify="space-between"
+          align="center"
+          wrap
+          style={{ marginBottom: 16 }}
+        >
+          <Space wrap>
+            {VAULT_STATUS_OPTIONS.map((filter) => (
+              <Button
+                key={filter.id}
+                size="small"
+                shape="round"
+                type={vaultFilter === filter.id ? "primary" : "default"}
+                onClick={() => setVaultFilter(filter.id)}
+              >
+                {filter.name}
+              </Button>
+            ))}
+          </Space>
+
+          <Select
+            prefix={
+              <SwapOutlined
+                style={{
+                  transform: "rotate(90deg) scaleY(-1)"
+                }}
+              />
+            }
+            defaultValue={sortOption}
+            value={sortOption}
+            style={{
+              width: 180,
+              maxWidth: "100%",
+              marginLeft: "auto"
+            }}
+            placeholder="Sort by"
+            options={[
+              { value: "createdAt_desc", label: "Newest First" },
+              { value: "createdAt_asc", label: "Oldest First" },
+              { value: "lastActiveAt_desc", label: "Most Active" },
+              { value: "lastActiveAt_asc", label: "Least Active" },
+              { value: "releaseAt_asc", label: "Nearing Release" },
+              { value: "releaseAt_desc", label: "Furthest Release" }
+            ]}
+            onChange={setSortOption}
+          />
+        </Flex>
         <Table
           loading={loading}
           dataSource={vaults}
           columns={columns}
           scroll={{ x: "max-content" }}
-          rowKey={(_, idx) => `${account}-${idx}`}
+          rowKey="id"
           pagination={{
             responsive: true,
             hideOnSinglePage: true,
@@ -194,14 +261,12 @@ export default function Vaults() {
               />
             )
           }}
-          onRow={(_, idx) => ({
-            onClick: () => {
-              const vaultId = `${account?.toLowerCase()}-${idx}`;
+          onRow={(vault) => ({
+            onClick: () =>
               navigate({
                 to: "/vaults/$id",
-                params: { id: vaultId }
-              });
-            },
+                params: { id: vault?.id }
+              }),
             style: { cursor: "pointer" }
           })}
         />
