@@ -161,15 +161,16 @@ export default function VaultDecrypt() {
       const ethersProvider = new BrowserProvider(walletProvider);
       const signer = await ethersProvider.getSigner();
       const client = await getCofheClient(ethersProvider, signer);
-      const permit = await client.permits.getOrCreateSelfPermit();
-      const isPermitValid = permit.expiration > dayjs().unix();
-      if (!isPermitValid) {
-        console.warn(
-          "Cofhe: Permit is not valid. removing from cache and creating a new one."
-        );
-        client.permits.removeActivePermit();
-        await client.permits.getOrCreateSelfPermit();
-      }
+      await client.acp.getOrCreateSelfACP();
+      // const acp = await client.acp.getOrCreateSelfACP();
+      // const isAcpValid = acp.expiration > dayjs().unix();
+      // if (!isAcpValid) {
+      //   console.warn(
+      //     "Cofhe: ACP is not valid. removing from cache and creating a new one."
+      //   );
+      //   client.acp.removeActiveACP();
+      //   await client.acp.getOrCreateSelfACP();
+      // }
       const decryptedAesKey = await client
         .decryptForView(vault.encryptedKeyHandle, FheTypes.Uint128)
         .execute();

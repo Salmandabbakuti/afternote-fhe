@@ -103,6 +103,7 @@ export default function CreateVault() {
           Encryptable.uint128(aesKeyBigInt),
           Encryptable.uint128(ivBigInt)
         ])
+        .setConsumingContract(afternoteContract.target)
         .execute();
       console.log("Keys encrypted, sending transaction to create vault...");
 
