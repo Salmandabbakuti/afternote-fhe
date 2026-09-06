@@ -108,7 +108,7 @@ npx hardhat run --network sepolia scripts/e2e.ts
 ```bash
 cd client
 
-npm install'
+npm install # bun install
 
 npm run dev
 ```
