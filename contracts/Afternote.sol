@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.34;
+pragma solidity 0.8.37;
 
-import {FHE, euint128, InEuint128} from "@fhenixprotocol/cofhe-contracts/FHE.sol";
+import {FHE, euint128, externalEuint128} from "@fhenixprotocol/cofhe-contracts/FHE.sol";
 
 contract Afternote {
     uint64 constant RELEASE_DELAY = 10 days; //7 DAYS DUE + 3 DAYS GRACE
@@ -47,8 +47,9 @@ contract Afternote {
     );
 
     function addVault(
-        InEuint128 calldata _encryptedKeyValue,
-        InEuint128 calldata _encryptedIvValue,
+        externalEuint128 _encryptedKeyValue,
+        externalEuint128 _encryptedIvValue,
+        bytes calldata _signature,
         bytes calldata _ciphertext,
         address[] calldata _beneficiaries
     ) external {
@@ -59,21 +60,26 @@ contract Afternote {
         uint256 vaultIndex = vaults[msg.sender].length;
         uint64 blockTimestamp = uint64(block.timestamp);
 
-        euint128 encryptedKey = FHE.asEuint128(_encryptedKeyValue);
-        euint128 encryptedIv = FHE.asEuint128(_encryptedIvValue);
-        FHE.allowThis(encryptedKey);
-        FHE.allowSender(encryptedKey);
-        FHE.allowThis(encryptedIv);
-        FHE.allowSender(encryptedIv);
+        (
+            euint128 encryptedKey,
+            euint128 encryptedIv
+        ) = _prepareEncryptedKeyAndIv(
+                _encryptedKeyValue,
+                _encryptedIvValue,
+                _signature
+            );
 
-        vaults[msg.sender].push();
-        Vault storage vault = vaults[msg.sender][vaultIndex];
-        vault.encryptedKey = encryptedKey;
-        vault.encryptedIv = encryptedIv;
-        vault.ciphertext = _ciphertext;
-        vault.beneficiaries = _beneficiaries;
-        vault.createdAt = blockTimestamp;
-        vault.lastActiveAt = blockTimestamp;
+        vaults[msg.sender].push(
+            Vault({
+                encryptedKey: encryptedKey,
+                encryptedIv: encryptedIv,
+                ciphertext: _ciphertext,
+                beneficiaries: _beneficiaries,
+                createdAt: blockTimestamp,
+                lastActiveAt: blockTimestamp,
+                isReleased: false
+            })
+        );
 
         emit VaultAdded(
             vaultIndex,
@@ -87,8 +93,9 @@ contract Afternote {
 
     function updateVault(
         uint256 _vaultIndex,
-        InEuint128 calldata _encryptedKeyValue,
-        InEuint128 calldata _encryptedIvValue,
+        externalEuint128 _encryptedKeyValue,
+        externalEuint128 _encryptedIvValue,
+        bytes calldata _signature,
         bytes calldata _ciphertext,
         address[] calldata _beneficiaries
     ) external {
@@ -101,12 +108,15 @@ contract Afternote {
         Vault storage vault = vaults[msg.sender][_vaultIndex];
         require(!vault.isReleased, "Vault already released");
 
-        euint128 encryptedKey = FHE.asEuint128(_encryptedKeyValue);
-        euint128 encryptedIv = FHE.asEuint128(_encryptedIvValue);
-        FHE.allowThis(encryptedKey);
-        FHE.allowSender(encryptedKey);
-        FHE.allowThis(encryptedIv);
-        FHE.allowSender(encryptedIv);
+        (
+            euint128 encryptedKey,
+            euint128 encryptedIv
+        ) = _prepareEncryptedKeyAndIv(
+                _encryptedKeyValue,
+                _encryptedIvValue,
+                _signature
+            );
+
         vault.encryptedKey = encryptedKey;
         vault.encryptedIv = encryptedIv;
         vault.ciphertext = _ciphertext;
@@ -159,15 +169,38 @@ contract Afternote {
 
     // ---------------- VIEW ----------------
 
-    function getVaults() external view returns (Vault[] memory) {
-        return vaults[msg.sender];
+    function getVaults(address _user) external view returns (Vault[] memory) {
+        return vaults[_user];
     }
 
-    function getVaultById(
+    function getVault(
         address _user,
-        uint256 _vaultIndex
+        uint256 _idx
     ) external view returns (Vault memory) {
-        require(_vaultIndex < vaults[_user].length, "Invalid vault index");
-        return vaults[_user][_vaultIndex];
+        require(_idx < vaults[_user].length, "Invalid vault index");
+        return vaults[_user][_idx];
+    }
+
+    // ---------------- INTERNAL ----------------
+
+    /// @notice Prepares the encrypted key and IV for storage, allowing default access to the contract and sender.
+    /// @return encryptedKey the prepared encrypted key
+    /// @return encryptedIv the prepared encrypted IV
+    function _prepareEncryptedKeyAndIv(
+        externalEuint128 _encryptedKeyValue,
+        externalEuint128 _encryptedIvValue,
+        bytes calldata _signature
+    ) private returns (euint128 encryptedKey, euint128 encryptedIv) {
+        externalEuint128[] memory packed = new externalEuint128[](2);
+        packed[0] = _encryptedKeyValue;
+        packed[1] = _encryptedIvValue;
+        euint128[] memory values = FHE.asEuint128s(packed, _signature);
+        encryptedKey = values[0];
+        encryptedIv = values[1];
+
+        FHE.allowThis(encryptedKey);
+        FHE.allowSender(encryptedKey);
+        FHE.allowThis(encryptedIv);
+        FHE.allowSender(encryptedIv);
     }
 }

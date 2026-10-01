@@ -1,7 +1,7 @@
 import { gql } from "graphql-request";
 
 export const AFTERNOTE_CONTRACT_ADDRESS =
-  "0x36c282F17959c02De25500b3fF53E753b08E5627";
+  "0xE88f32a9522d8651346A42BC6E8a0CBACa9c88DF";
 
 export const RELEASE_DELAY_SECONDS = 10 * 24 * 60 * 60;
 

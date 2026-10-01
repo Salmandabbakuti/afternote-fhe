@@ -22,8 +22,13 @@ createAppKit({
   allowUnsupportedChain: false,
   defaultNetwork: sepolia,
   themeMode: "dark",
+  allWallets: "HIDE",
   features: {
-    analytics: true
+    swaps: false,
+    onramp: false,
+    send: false,
+    socials: ["google", "github", "apple", "x", "discord"],
+    analytics: true // Optional - defaults to your Cloud configuration
   }
 });
 

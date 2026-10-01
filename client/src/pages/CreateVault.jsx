@@ -98,7 +98,7 @@ export default function CreateVault() {
       const cipherTextHex = uint8ArrayToHex(cipherTextBytes);
       console.log("Note encrypted locally, encrypting keys...");
 
-      const [encryptedKeyInput, encryptedIvInput] = await client
+      const [encryptedKeyInput, encryptedIvInput, signature] = await client
         .encryptInputs([
           Encryptable.uint128(aesKeyBigInt),
           Encryptable.uint128(ivBigInt)
@@ -112,6 +112,7 @@ export default function CreateVault() {
         .addVault(
           encryptedKeyInput,
           encryptedIvInput,
+          signature,
           cipherTextHex,
           beneficiaries
         );

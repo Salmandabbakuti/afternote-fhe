@@ -1,21 +1,16 @@
 {
   "name": "afternote-fhe",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
-  "scripts": {
-    "compile": "hardhat compile",
-    "test": "hardhat test",
-    "e2e:sepolia": "hardhat run --network sepolia scripts/e2e.ts"
-  },
+  "private": true,
   "devDependencies": {
-    "@cofhe/sdk": "^0.5.2",
-    "@fhenixprotocol/cofhe-contracts": "^0.1.3",
-    "@nomicfoundation/hardhat-ignition": "^3.1.4",
-    "@nomicfoundation/hardhat-toolbox-viem": "^5.0.4",
-    "@types/node": "^24.12.2",
-    "forge-std": "github:foundry-rs/forge-std#v1.16.1",
-    "hardhat": "^3.4.3",
-    "typescript": "~6.0.3",
-    "viem": "^2.48.8"
+    "@cofhe/sdk": "^0.7.1",
+    "@fhenixprotocol/cofhe-contracts": "^0.2.0",
+    "@nomicfoundation/hardhat-ignition": "^3.1.8",
+    "@nomicfoundation/hardhat-toolbox-viem": "^5.0.7",
+    "@types/node": "^26.6.3",
+    "hardhat": "^3.18.0",
+    "typescript": "~7.0.2",
+    "viem": "^2.57.2"
   }
 }
