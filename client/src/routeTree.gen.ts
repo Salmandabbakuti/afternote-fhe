@@ -66,11 +66,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
-    | '/vaults/create'
-    | '/vaults/'
-    | '/vaults/$id/decrypt'
-    | '/vaults/$id/'
+    '/' | '/vaults/create' | '/vaults/' | '/vaults/$id/decrypt' | '/vaults/$id/'
   fileRoutesByTo: FileRoutesByTo
   to: '/' | '/vaults/create' | '/vaults' | '/vaults/$id/decrypt' | '/vaults/$id'
   id:

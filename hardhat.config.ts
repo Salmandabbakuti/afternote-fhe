@@ -6,10 +6,10 @@ export default defineConfig({
   solidity: {
     profiles: {
       default: {
-        version: "0.8.34"
+        version: "0.8.37"
       },
       production: {
-        version: "0.8.34",
+        version: "0.8.37",
         settings: {
           optimizer: {
             enabled: true,
@@ -23,7 +23,7 @@ export default defineConfig({
     sepolia: {
       type: "http",
       chainType: "l1",
-      url: "https://sepolia.drpc.org",
+      url: "https://ethereum-sepolia-rpc.publicnode.com",
       accounts: [configVariable("PRIVATE_KEY")]
     }
   }

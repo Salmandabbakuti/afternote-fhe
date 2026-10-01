@@ -184,8 +184,8 @@ Contract functions:
 - `updateVault()`: Modify content, key, or beneficiaries (before release)
 - `ping()`: Update `lastActiveAt` to prove owner activity
 - `release()`: Grant beneficiary access after inactivity threshold
-- `getVaults()`: Retrieve all vaults for owner
-- `getVaultById()`: Retrieve specific vault details
+- `getVaults()`: Retrieve all vaults for a user
+- `getVault()`: Retrieve specific vault details
 
 Key constraints:
 
