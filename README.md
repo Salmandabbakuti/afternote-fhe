@@ -95,12 +95,14 @@ npm install
 
 npx hardhat keystore set PRIVATE_KEY
 
+npx hardhat keystore set ETHERSCAN_API_KEY # optional for contract verification
+
 npx hardhat compile
 
 npx hardhat ignition deploy ignition/modules/Afternote.ts --network sepolia
 
-# run end-to-end tests
-npx hardhat run --network sepolia scripts/e2e.ts
+# Verify contract on Etherscan (optional)
+npx hardhat verify --network sepolia <DEPLOYED_CONTRACT_ADDRESS>
 ```
 
 ### Running Client

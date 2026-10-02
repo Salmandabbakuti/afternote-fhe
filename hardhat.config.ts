@@ -26,5 +26,10 @@ export default defineConfig({
       url: "https://ethereum-sepolia-rpc.publicnode.com",
       accounts: [configVariable("PRIVATE_KEY")]
     }
+  },
+  verify: {
+    etherscan: {
+      apiKey: configVariable("ETHERSCAN_API_KEY")
+    },
   }
 });
