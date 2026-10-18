@@ -39,12 +39,7 @@ contract Afternote {
 
     event VaultPinged(uint256 indexed idx, address indexed owner);
 
-    event VaultReleased(
-        uint256 indexed idx,
-        address indexed owner,
-        address indexed caller,
-        address[] beneficiaries
-    );
+    event VaultReleased(uint256 indexed idx, address indexed owner);
 
     function addVault(
         externalEuint128 _encryptedKeyValue,
@@ -164,7 +159,7 @@ contract Afternote {
             FHE.allow(encryptedIv, beneficiaries[i]);
         }
 
-        emit VaultReleased(_vaultIndex, _owner, msg.sender, beneficiaries);
+        emit VaultReleased(_vaultIndex, _owner);
     }
 
     // ---------------- VIEW ----------------

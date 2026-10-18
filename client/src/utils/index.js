@@ -1,24 +1,11 @@
 import { Ethers6Adapter } from "@cofhe/sdk/adapters";
 import { createCofheClient, createCofheConfig } from "@cofhe/sdk/web";
 import { chains } from "@cofhe/sdk/chains";
-import {
-  JsonRpcProvider,
-  Contract,
-  toBeArray,
-  toBigInt,
-  hexlify,
-  getBytes
-} from "ethers";
+import { Contract, toBeArray, toBigInt, hexlify, getBytes } from "ethers";
 import { GraphQLClient } from "graphql-request";
 import { AFTERNOTE_CONTRACT_ADDRESS, SUBGRAPH_URL } from "./constants";
 
 export const subgraphClient = new GraphQLClient(SUBGRAPH_URL);
-
-export const sepoliaProvider = new JsonRpcProvider(
-  "https://sepolia.drpc.org",
-  11155111,
-  { staticNetwork: true }
-);
 
 const config = createCofheConfig({ supportedChains: [chains.sepolia] });
 const cofheClient = createCofheClient(config);
@@ -97,8 +84,7 @@ const AFTERNOTE_ABI = [
 
 export const afternoteContract = new Contract(
   AFTERNOTE_CONTRACT_ADDRESS,
-  AFTERNOTE_ABI,
-  sepoliaProvider
+  AFTERNOTE_ABI
 );
 
 export const ellipsisString = (str, start = 6, end = 4) => {
