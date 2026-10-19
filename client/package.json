@@ -4,9 +4,9 @@
   "version": "0.4.1",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 3000",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "bunx --bun vite --port 3000",
+    "build": "bunx --bun vite build",
+    "preview": "bunx --bun vite preview"
   },
   "dependencies": {
     "@ant-design/icons": "^6.3.4",

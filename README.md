@@ -85,7 +85,13 @@ flowchart TD
 
 ## Getting Started
 
-### Deploying Contract (Optional)
+Bun is preferred for this project. If it isn't installed, you can install it now or run the equivalent `npm` or `npx` commands instead. Follow https://bun.com/docs/installation
+
+```bash
+curl -fsSL https://bun.sh/install | bash
+```
+
+### 1. Deploying Contract (Optional)
 
 This project is scaffolded using [hardhat](https://hardhat.org/docs). Please refer to the documentation for more information on folder structure and configuration.
 
@@ -106,7 +112,20 @@ bunx hardhat ignition deploy ignition/modules/Afternote.ts --network sepolia
 bunx hardhat verify --network sepolia <DEPLOYED_CONTRACT_ADDRESS>
 ```
 
-### Running Client
+### 2. Deploying the Subgraph
+
+```bash
+
+cd subgraph
+
+bun install
+
+bun run codegen
+
+bun run deploy
+```
+
+### 3. Running Client
 
 ```bash
 cd client
