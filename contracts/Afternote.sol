@@ -17,7 +17,7 @@ contract Afternote {
         bool isReleased;
     }
 
-    mapping(address => Vault[]) public vaults;
+    mapping(address => Vault[]) vaults;
 
     event VaultAdded(
         uint256 indexed idx,
@@ -87,7 +87,7 @@ contract Afternote {
     }
 
     function updateVault(
-        uint256 _vaultIndex,
+        uint256 _vaultIdx,
         externalEuint128 _encryptedKeyValue,
         externalEuint128 _encryptedIvValue,
         bytes calldata _signature,
@@ -98,9 +98,9 @@ contract Afternote {
             _beneficiaries.length <= MAX_BENEFICIARIES,
             "Beneficiaries limit exceeded"
         );
-        require(_vaultIndex < vaults[msg.sender].length, "Invalid vault index");
+        require(_vaultIdx < vaults[msg.sender].length, "Invalid vault index");
 
-        Vault storage vault = vaults[msg.sender][_vaultIndex];
+        Vault storage vault = vaults[msg.sender][_vaultIdx];
         require(!vault.isReleased, "Vault already released");
 
         (
@@ -119,7 +119,7 @@ contract Afternote {
         vault.lastActiveAt = uint64(block.timestamp);
 
         emit VaultUpdated(
-            _vaultIndex,
+            _vaultIdx,
             msg.sender,
             euint128.unwrap(encryptedKey),
             euint128.unwrap(encryptedIv),
@@ -128,20 +128,20 @@ contract Afternote {
         );
     }
 
-    function ping(uint256 _vaultIndex) external {
-        require(_vaultIndex < vaults[msg.sender].length, "Invalid vault index");
+    function ping(uint256 _vaultIdx) external {
+        require(_vaultIdx < vaults[msg.sender].length, "Invalid vault index");
 
-        Vault storage vault = vaults[msg.sender][_vaultIndex];
+        Vault storage vault = vaults[msg.sender][_vaultIdx];
         require(!vault.isReleased, "Vault already released");
 
         vault.lastActiveAt = uint64(block.timestamp);
-        emit VaultPinged(_vaultIndex, msg.sender);
+        emit VaultPinged(_vaultIdx, msg.sender);
     }
 
-    function release(address _owner, uint256 _vaultIndex) external {
-        require(_vaultIndex < vaults[_owner].length, "Invalid vault index");
+    function release(address _owner, uint256 _vaultIdx) external {
+        require(_vaultIdx < vaults[_owner].length, "Invalid vault index");
 
-        Vault storage vault = vaults[_owner][_vaultIndex];
+        Vault storage vault = vaults[_owner][_vaultIdx];
         require(!vault.isReleased, "Vault already released");
         require(vault.beneficiaries.length > 0, "No beneficiaries set");
         require(
@@ -159,7 +159,7 @@ contract Afternote {
             FHE.allow(encryptedIv, beneficiaries[i]);
         }
 
-        emit VaultReleased(_vaultIndex, _owner);
+        emit VaultReleased(_vaultIdx, _owner);
     }
 
     // ---------------- VIEW ----------------
@@ -185,7 +185,7 @@ contract Afternote {
         externalEuint128 _encryptedKeyValue,
         externalEuint128 _encryptedIvValue,
         bytes calldata _signature
-    ) private returns (euint128 encryptedKey, euint128 encryptedIv) {
+    ) internal returns (euint128 encryptedKey, euint128 encryptedIv) {
         externalEuint128[] memory packed = new externalEuint128[](2);
         packed[0] = _encryptedKeyValue;
         packed[1] = _encryptedIvValue;

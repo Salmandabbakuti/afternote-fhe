@@ -1,8 +1,8 @@
 {
   "sepolia": {
     "Afternote": {
-      "address": "0xE5899D27C0B6F1F9afc0A62CF07eD788d07c69f9",
-      "startBlock": 11819870
+      "address": "0x10b9BbEf9Ae15fCF9deCdeB87ADB905D97AD8018",
+      "startBlock": 11946779
     }
   }
 }

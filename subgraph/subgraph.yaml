@@ -8,9 +8,9 @@ dataSources:
     name: Afternote
     network: sepolia
     source:
-      address: "0xE5899D27C0B6F1F9afc0A62CF07eD788d07c69f9"
+      address: "0x10b9BbEf9Ae15fCF9deCdeB87ADB905D97AD8018"
       abi: Afternote
-      startBlock: 11942436
+      startBlock: 11946779
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9

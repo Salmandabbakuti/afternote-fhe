@@ -91,18 +91,18 @@ This project is scaffolded using [hardhat](https://hardhat.org/docs). Please ref
 
 ```bash
 
-npm install
+bun install
 
-npx hardhat keystore set PRIVATE_KEY
+bunx hardhat keystore set PRIVATE_KEY
 
-npx hardhat keystore set ETHERSCAN_API_KEY # optional for contract verification
+bunx hardhat keystore set ETHERSCAN_API_KEY # optional for contract verification
 
-npx hardhat compile
+bunx hardhat compile
 
-npx hardhat ignition deploy ignition/modules/Afternote.ts --network sepolia
+bunx hardhat ignition deploy ignition/modules/Afternote.ts --network sepolia
 
 # Verify contract on Etherscan (optional)
-npx hardhat verify --network sepolia <DEPLOYED_CONTRACT_ADDRESS>
+bunx hardhat verify --network sepolia <DEPLOYED_CONTRACT_ADDRESS>
 ```
 
 ### Running Client
@@ -110,9 +110,9 @@ npx hardhat verify --network sepolia <DEPLOYED_CONTRACT_ADDRESS>
 ```bash
 cd client
 
-npm install # bun install
+bun install # bun install
 
-npm run dev
+bun run dev
 ```
 
 ### Demo
