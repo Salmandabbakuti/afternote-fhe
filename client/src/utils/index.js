@@ -1,24 +1,11 @@
 import { Ethers6Adapter } from "@cofhe/sdk/adapters";
 import { createCofheClient, createCofheConfig } from "@cofhe/sdk/web";
 import { chains } from "@cofhe/sdk/chains";
-import {
-  JsonRpcProvider,
-  Contract,
-  toBeArray,
-  toBigInt,
-  hexlify,
-  getBytes
-} from "ethers";
+import { Contract, toBeArray, toBigInt, hexlify, getBytes } from "ethers";
 import { GraphQLClient } from "graphql-request";
 import { AFTERNOTE_CONTRACT_ADDRESS, SUBGRAPH_URL } from "./constants";
 
 export const subgraphClient = new GraphQLClient(SUBGRAPH_URL);
-
-export const sepoliaProvider = new JsonRpcProvider(
-  "https://sepolia.drpc.org",
-  11155111,
-  { staticNetwork: true }
-);
 
 const config = createCofheConfig({ supportedChains: [chains.sepolia] });
 const cofheClient = createCofheClient(config);
@@ -86,9 +73,9 @@ export const decryptText = async (cipherTextBytes, ivBytes, aesKeyBytes) => {
 
 const AFTERNOTE_ABI = [
   "function addVault(bytes32 _encryptedKeyValue, bytes32 _encryptedIvValue, bytes _signature, bytes _ciphertext, address[] _beneficiaries)",
-  "function updateVault(uint256 _vaultIndex, bytes32 _encryptedKeyValue, bytes32 _encryptedIvValue, bytes _signature, bytes _ciphertext, address[] _beneficiaries)",
-  "function ping(uint256 _vaultIndex)",
-  "function release(address _owner, uint256 _vaultIndex)",
+  "function updateVault(uint256 _vaultIdx, bytes32 _encryptedKeyValue, bytes32 _encryptedIvValue, bytes _signature, bytes _ciphertext, address[] _beneficiaries)",
+  "function ping(uint256 _vaultIdx)",
+  "function release(address _owner, uint256 _vaultIdx)",
   "function vaults(address, uint256) view returns (bytes32 encryptedKey, bytes32 encryptedIv, uint64 createdAt, uint64 lastActiveAt, bool isReleased)",
   "function getVaults(address _user) view returns (tuple(bytes32 encryptedKey, bytes32 encryptedIv, bytes ciphertext, address[] beneficiaries, uint64 createdAt, uint64 lastActiveAt, bool isReleased)[])",
   "function getVault(address _user, uint256 _idx) view returns (tuple(bytes32 encryptedKey, bytes32 encryptedIv, bytes ciphertext, address[] beneficiaries, uint64 createdAt, uint64 lastActiveAt, bool isReleased))",
@@ -97,8 +84,7 @@ const AFTERNOTE_ABI = [
 
 export const afternoteContract = new Contract(
   AFTERNOTE_CONTRACT_ADDRESS,
-  AFTERNOTE_ABI,
-  sepoliaProvider
+  AFTERNOTE_ABI
 );
 
 export const ellipsisString = (str, start = 6, end = 4) => {

@@ -8,9 +8,9 @@ dataSources:
     name: Afternote
     network: sepolia
     source:
-      address: "0xE88f32a9522d8651346A42BC6E8a0CBACa9c88DF"
+      address: "0x10b9BbEf9Ae15fCF9deCdeB87ADB905D97AD8018"
       abi: Afternote
-      startBlock: 11819870
+      startBlock: 11946779
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9
@@ -25,7 +25,7 @@ dataSources:
           handler: handleVaultAdded
         - event: VaultPinged(indexed uint256,indexed address)
           handler: handleVaultPinged
-        - event: VaultReleased(indexed uint256,indexed address,indexed address,address[])
+        - event: VaultReleased(indexed uint256,indexed address)
           handler: handleVaultReleased
         - event: VaultUpdated(indexed uint256,indexed address,indexed bytes32,bytes32,bytes,address[])
           handler: handleVaultUpdated

@@ -4,18 +4,11 @@ import { configVariable, defineConfig } from "hardhat/config";
 export default defineConfig({
   plugins: [hardhatToolboxViemPlugin],
   solidity: {
-    profiles: {
-      default: {
-        version: "0.8.37"
-      },
-      production: {
-        version: "0.8.37",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 200
-          }
-        }
+    version: "0.8.37",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200
       }
     }
   },
@@ -30,6 +23,6 @@ export default defineConfig({
   verify: {
     etherscan: {
       apiKey: configVariable("ETHERSCAN_API_KEY")
-    },
+    }
   }
 });

@@ -1,14 +1,14 @@
 import { gql } from "graphql-request";
 
 export const AFTERNOTE_CONTRACT_ADDRESS =
-  "0xE88f32a9522d8651346A42BC6E8a0CBACa9c88DF";
+  "0x10b9BbEf9Ae15fCF9deCdeB87ADB905D97AD8018";
 
 export const RELEASE_DELAY_SECONDS = 10 * 24 * 60 * 60;
 
 export const SEPOLIA_CHAIN_ID = "11155111";
 
 export const SUBGRAPH_URL =
-  "https://api.studio.thegraph.com/query/32812/afternote-fhe/version/latest";
+  "https://api.studio.thegraph.com/query/32812/afternote-fhe/v0.2.3";
 
 export const GET_VAULTS_QUERY = gql`
   query GetVaults(
