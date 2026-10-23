@@ -4,7 +4,6 @@
   "type": "module",
   "private": true,
   "devDependencies": {
-    "@cofhe/sdk": "^1.0.0",
     "@fhenixprotocol/cofhe-contracts": "^1.0.1",
     "@nomicfoundation/hardhat-ignition": "^3.1.9",
     "@nomicfoundation/hardhat-toolbox-viem": "^5.0.7",

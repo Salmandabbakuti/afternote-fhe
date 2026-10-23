@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^6.3.4",
-    "@cofhe/sdk": "^1.0.0",
+    "@cofhe/sdk": "^1.0.1",
     "@reown/appkit": "^1.8.24",
     "@reown/appkit-adapter-ethers": "^1.8.24",
     "@tanstack/react-router": "^1.170.45",

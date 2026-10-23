@@ -91,9 +91,7 @@ export default function VaultDetails() {
       setLoading((prev) => ({ ...prev, read: true }));
       const data = await subgraphClient.request(GET_VAULT_BY_ID_QUERY, { id });
       setVault(
-        data?.vault
-          ? { ...data.vault, content: "", releaseNow: false }
-          : null
+        data?.vault ? { ...data.vault, content: "", releaseNow: false } : null
       );
     } catch (error) {
       console.error("Failed to fetch vault:", error);
@@ -156,9 +154,7 @@ export default function VaultDetails() {
     }
 
     if (
-      beneficiaries.some(
-        (item) => item.toLowerCase() === value.toLowerCase()
-      )
+      beneficiaries.some((item) => item.toLowerCase() === value.toLowerCase())
     ) {
       message.warning("Beneficiary already added.");
       return;
@@ -183,8 +179,7 @@ export default function VaultDetails() {
       return {
         ...prev,
         beneficiaries: nextBeneficiaries,
-        releaseNow:
-          nextBeneficiaries.length === 0 ? false : prev.releaseNow
+        releaseNow: nextBeneficiaries.length === 0 ? false : prev.releaseNow
       };
     });
   }
@@ -308,7 +303,7 @@ export default function VaultDetails() {
     }
   }
 
-  async function handleUpdateVault() {
+  async function handleSave() {
     if (!vault.content.trim()) {
       return message.error("Please enter the note.");
     }
@@ -361,12 +356,10 @@ export default function VaultDetails() {
       const now = dayjs().unix();
       setVault((prev) => ({
         ...prev,
-        beneficiaries: vault.beneficiaries,
         lastActiveAt: now,
         updatedAt: now,
         releaseAt: vault.releaseNow ? now : now + RELEASE_DELAY_SECONDS,
-        isReleased: vault.releaseNow,
-        releaseNow: false
+        isReleased: vault.releaseNow
       }));
       setEditing(false);
       savedVaultRef.current = null;
@@ -417,7 +410,7 @@ export default function VaultDetails() {
                       shape="round"
                       icon={<SaveOutlined />}
                       loading={loading.update}
-                      onClick={handleUpdateVault}
+                      onClick={handleSave}
                     >
                       Save
                     </Button>
@@ -470,9 +463,6 @@ export default function VaultDetails() {
                   description="Saving vault. Please wait..."
                   styles={{ indicator: { color: "#667eea" } }}
                 />
-                <Typography.Text type="secondary">
-                  Note will be encrypted locally before being sent on-chain.
-                </Typography.Text>
                 <Input.TextArea
                   rows={16}
                   showCount
@@ -485,6 +475,9 @@ export default function VaultDetails() {
                     }))
                   }
                 />
+                <Text type="secondary">
+                  Note will be encrypted locally before being sent on-chain.
+                </Text>
               </>
             ) : (
               <Space orientation="vertical" style={{ width: "100%" }}>
@@ -563,6 +556,7 @@ export default function VaultDetails() {
                   placeholder="0x..."
                   maxLength={42}
                   enterButton="+ Add"
+                  allowClear
                   onSearch={handleAddBeneficiary}
                   disabled={beneficiaries.length >= limits.beneficiaries}
                 />

@@ -89,7 +89,7 @@ export default function CreateVault() {
     });
   }
 
-  async function onFinish() {
+  async function handleSave() {
     if (!draft.content.trim()) {
       return message.error("Please enter the note text.");
     }
@@ -185,7 +185,7 @@ export default function CreateVault() {
                     icon={<SaveOutlined />}
                     type="primary"
                     shape="round"
-                    onClick={onFinish}
+                    onClick={handleSave}
                     loading={loading}
                   >
                     Save
@@ -196,9 +196,6 @@ export default function CreateVault() {
                 </Space>
               }
             >
-              <Typography.Text type="secondary">
-                Note will be encrypted locally before being sent on-chain.
-              </Typography.Text>
               <Input.TextArea
                 rows={16}
                 placeholder="Write the note you want to protect"
@@ -212,6 +209,9 @@ export default function CreateVault() {
                   }))
                 }
               />
+              <Text type="secondary">
+                Note will be encrypted locally before being sent on-chain.
+              </Text>
             </Card>
           </Col>
 
@@ -227,6 +227,7 @@ export default function CreateVault() {
                   placeholder="0x..."
                   maxLength={42}
                   enterButton="+ Add"
+                  allowClear
                   onSearch={handleAddBeneficiary}
                   disabled={draft.beneficiaries.length >= limits.beneficiaries}
                 />
