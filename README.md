@@ -88,11 +88,7 @@ flowchart TD
 
 ## Getting Started
 
-Bun is preferred for this project. If it isn't installed, you can install it now or run the equivalent `npm` or `npx` commands instead. Follow https://bun.com/docs/installation
-
-```bash
-curl -fsSL https://bun.sh/install | bash
-```
+[Bun](https://bun.sh) is preferred runtime for this project. If it isn't installed, insall it or run the equivalent `npm` or `npx` commands instead.
 
 ### 1. Deploying Contract (Optional)
 

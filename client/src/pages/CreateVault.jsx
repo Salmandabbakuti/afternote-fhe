@@ -150,15 +150,16 @@ export default function CreateVault() {
       const idx = addedLog?.args?.idx?.toString() || "0";
       const vaultId = `${account.toLowerCase()}-${idx}`;
 
-      message.success("Vault created successfully.");
-      setDraft({ content: "", beneficiaries: [], releaseNow: false });
-      navigate({ to: "/vaults/$id", params: { id: vaultId } });
+      message.success("Vault created successfully. Redirecting...");
+      setTimeout(
+        () => navigate({ to: "/vaults/$id", params: { id: vaultId } }),
+        4000
+      );
     } catch (error) {
       console.error("Error creating vault:", error);
       message.error(
         `Failed to create vault. ${error?.shortMessage || error?.message || "Please try again later."}`
       );
-    } finally {
       setLoading(false);
     }
   }

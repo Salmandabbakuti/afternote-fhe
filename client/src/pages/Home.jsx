@@ -92,7 +92,7 @@ const faqItems = [
     key: "3",
     label: "When can release be called?",
     children:
-      "Release is possible only after the inactivity delay has passed since your last ping."
+      "You can choose to release immediately during create/update or after a set inactivity delay."
   }
 ];
 
