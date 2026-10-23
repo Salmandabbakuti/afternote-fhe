@@ -8,7 +8,7 @@ export const RELEASE_DELAY_SECONDS = 10 * 24 * 60 * 60;
 export const SEPOLIA_CHAIN_ID = "11155111";
 
 export const SUBGRAPH_URL =
-  "https://api.studio.thegraph.com/query/32812/afternote-fhe/v0.2.3";
+  "https://api.studio.thegraph.com/query/32812/afternote-fhe/v0.3.0";
 
 export const GET_VAULTS_QUERY = gql`
   query GetVaults(

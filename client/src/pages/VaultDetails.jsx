@@ -146,7 +146,8 @@ export default function VaultDetails() {
   const isOwner = vaultOwner?.toLowerCase() === account?.toLowerCase();
   const isVaultReadOnly = !isOwner || isVaultReleased;
 
-  function handleAddBeneficiary(input) {
+  function handleAddBeneficiary(input, _event, info) {
+    if (info?.source === "clear") return;
     const value = input.trim();
     if (!isAddress(value)) {
       message.error("Please enter a valid Ethereum address.");
@@ -552,6 +553,7 @@ export default function VaultDetails() {
             >
               {editing ? (
                 <Input.Search
+                  key={beneficiaries.join(":")} //remounts onchange to clear input(hack)
                   size="large"
                   placeholder="0x..."
                   maxLength={42}

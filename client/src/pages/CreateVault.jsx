@@ -48,7 +48,8 @@ export default function CreateVault() {
 
   const limits = { beneficiaries: 3 };
 
-  function handleAddBeneficiary(input) {
+  function handleAddBeneficiary(input, _event, info) {
+    if (info?.source === "clear") return;
     const value = input.trim();
 
     if (!isAddress(value)) {
@@ -223,6 +224,7 @@ export default function CreateVault() {
                 extra={`${draft.beneficiaries.length} of ${limits.beneficiaries}`}
               >
                 <Input.Search
+                  key={draft.beneficiaries.join(":")}
                   size="large"
                   placeholder="0x..."
                   maxLength={42}
