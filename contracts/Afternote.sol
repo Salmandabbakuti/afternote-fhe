@@ -25,7 +25,8 @@ contract Afternote {
         bytes32 indexed encryptedKeyHandle,
         bytes32 encryptedIvHandle,
         bytes ciphertext,
-        address[] beneficiaries
+        address[] beneficiaries,
+        bool isReleased
     );
 
     event VaultUpdated(
@@ -34,7 +35,8 @@ contract Afternote {
         bytes32 indexed encryptedKeyHandle,
         bytes32 encryptedIvHandle,
         bytes ciphertext,
-        address[] beneficiaries
+        address[] beneficiaries,
+        bool isReleased
     );
 
     event VaultPinged(uint256 indexed idx, address indexed owner);
@@ -46,7 +48,8 @@ contract Afternote {
         externalEuint128 _encryptedIvValue,
         bytes calldata _signature,
         bytes calldata _ciphertext,
-        address[] calldata _beneficiaries
+        address[] calldata _beneficiaries,
+        bool _releaseNow
     ) external {
         require(
             _beneficiaries.length <= MAX_BENEFICIARIES,
@@ -72,8 +75,15 @@ contract Afternote {
                 beneficiaries: _beneficiaries,
                 createdAt: blockTimestamp,
                 lastActiveAt: blockTimestamp,
-                isReleased: false
+                isReleased: _releaseNow
             })
+        );
+
+        _grantBeneficiaryAccess(
+            encryptedKey,
+            encryptedIv,
+            _beneficiaries,
+            _releaseNow
         );
 
         emit VaultAdded(
@@ -82,7 +92,8 @@ contract Afternote {
             euint128.unwrap(encryptedKey),
             euint128.unwrap(encryptedIv),
             _ciphertext,
-            _beneficiaries
+            _beneficiaries,
+            _releaseNow
         );
     }
 
@@ -92,7 +103,8 @@ contract Afternote {
         externalEuint128 _encryptedIvValue,
         bytes calldata _signature,
         bytes calldata _ciphertext,
-        address[] calldata _beneficiaries
+        address[] calldata _beneficiaries,
+        bool _releaseNow
     ) external {
         require(
             _beneficiaries.length <= MAX_BENEFICIARIES,
@@ -117,6 +129,14 @@ contract Afternote {
         vault.ciphertext = _ciphertext;
         vault.beneficiaries = _beneficiaries;
         vault.lastActiveAt = uint64(block.timestamp);
+        vault.isReleased = _releaseNow;
+
+        _grantBeneficiaryAccess(
+            encryptedKey,
+            encryptedIv,
+            _beneficiaries,
+            _releaseNow
+        );
 
         emit VaultUpdated(
             _vaultIdx,
@@ -124,7 +144,8 @@ contract Afternote {
             euint128.unwrap(encryptedKey),
             euint128.unwrap(encryptedIv),
             _ciphertext,
-            _beneficiaries
+            _beneficiaries,
+            _releaseNow
         );
     }
 
@@ -143,21 +164,17 @@ contract Afternote {
 
         Vault storage vault = vaults[_owner][_vaultIdx];
         require(!vault.isReleased, "Vault already released");
-        require(vault.beneficiaries.length > 0, "No beneficiaries set");
         require(
             block.timestamp >= vault.lastActiveAt + RELEASE_DELAY,
             "Vault is still active"
         );
         vault.isReleased = true;
-        address[] storage beneficiaries = vault.beneficiaries;
-        uint256 beneficiariesLength = beneficiaries.length;
-        euint128 encryptedKey = vault.encryptedKey;
-        euint128 encryptedIv = vault.encryptedIv;
-
-        for (uint256 i = 0; i < beneficiariesLength; i++) {
-            FHE.allow(encryptedKey, beneficiaries[i]);
-            FHE.allow(encryptedIv, beneficiaries[i]);
-        }
+        _grantBeneficiaryAccess(
+            vault.encryptedKey,
+            vault.encryptedIv,
+            vault.beneficiaries,
+            true
+        );
 
         emit VaultReleased(_vaultIdx, _owner);
     }
@@ -197,5 +214,20 @@ contract Afternote {
         FHE.allowSender(encryptedKey);
         FHE.allowThis(encryptedIv);
         FHE.allowSender(encryptedIv);
+    }
+
+    function _grantBeneficiaryAccess(
+        euint128 encryptedKey,
+        euint128 encryptedIv,
+        address[] memory beneficiaries,
+        bool immediate
+    ) internal {
+        if (!immediate) return;
+        require(beneficiaries.length > 0, "No beneficiaries set");
+
+        for (uint256 i; i < beneficiaries.length; ++i) {
+            FHE.allow(encryptedKey, beneficiaries[i]);
+            FHE.allow(encryptedIv, beneficiaries[i]);
+        }
     }
 }

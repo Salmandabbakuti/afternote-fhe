@@ -72,14 +72,15 @@ export const decryptText = async (cipherTextBytes, ivBytes, aesKeyBytes) => {
 };
 
 const AFTERNOTE_ABI = [
-  "function addVault(bytes32 _encryptedKeyValue, bytes32 _encryptedIvValue, bytes _signature, bytes _ciphertext, address[] _beneficiaries)",
-  "function updateVault(uint256 _vaultIdx, bytes32 _encryptedKeyValue, bytes32 _encryptedIvValue, bytes _signature, bytes _ciphertext, address[] _beneficiaries)",
+  "function addVault(bytes32 _encryptedKeyValue, bytes32 _encryptedIvValue, bytes _signature, bytes _ciphertext, address[] _beneficiaries, bool _releaseNow)",
+  "function updateVault(uint256 _vaultIdx, bytes32 _encryptedKeyValue, bytes32 _encryptedIvValue, bytes _signature, bytes _ciphertext, address[] _beneficiaries, bool _releaseNow)",
   "function ping(uint256 _vaultIdx)",
   "function release(address _owner, uint256 _vaultIdx)",
   "function vaults(address, uint256) view returns (bytes32 encryptedKey, bytes32 encryptedIv, uint64 createdAt, uint64 lastActiveAt, bool isReleased)",
   "function getVaults(address _user) view returns (tuple(bytes32 encryptedKey, bytes32 encryptedIv, bytes ciphertext, address[] beneficiaries, uint64 createdAt, uint64 lastActiveAt, bool isReleased)[])",
   "function getVault(address _user, uint256 _idx) view returns (tuple(bytes32 encryptedKey, bytes32 encryptedIv, bytes ciphertext, address[] beneficiaries, uint64 createdAt, uint64 lastActiveAt, bool isReleased))",
-  "event VaultAdded(uint256 indexed idx, address indexed owner, bytes32 indexed encryptedKeyHandle, bytes32 encryptedIvHandle, bytes ciphertext, address[] beneficiaries)"
+  "event VaultAdded(uint256 indexed idx, address indexed owner, bytes32 indexed encryptedKeyHandle, bytes32 encryptedIvHandle, bytes ciphertext, address[] beneficiaries, bool isReleased)",
+  "event VaultUpdated(uint256 indexed idx, address indexed owner, bytes32 indexed encryptedKeyHandle, bytes32 encryptedIvHandle, bytes ciphertext, address[] beneficiaries, bool isReleased)"
 ];
 
 export const afternoteContract = new Contract(

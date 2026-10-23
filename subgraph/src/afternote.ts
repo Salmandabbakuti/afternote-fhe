@@ -33,8 +33,10 @@ export function handleVaultAdded(event: VaultAddedEvent): void {
   vault.ciphertext = event.params.ciphertext;
   vault.beneficiaries = changetype<Bytes[]>(event.params.beneficiaries);
   vault.lastActiveAt = blockTimestamp;
-  vault.isReleased = false;
-  vault.releaseAt = getReleaseAt(blockTimestamp);
+  vault.isReleased = event.params.isReleased;
+  vault.releaseAt = event.params.isReleased
+    ? blockTimestamp
+    : getReleaseAt(blockTimestamp);
   vault.createdAt = blockTimestamp;
   vault.updatedAt = blockTimestamp;
   vault.save();
@@ -61,8 +63,11 @@ export function handleVaultUpdated(event: VaultUpdatedEvent): void {
   vault.encryptedIvHandle = event.params.encryptedIvHandle;
   vault.ciphertext = event.params.ciphertext;
   vault.beneficiaries = changetype<Bytes[]>(event.params.beneficiaries);
+  vault.isReleased = event.params.isReleased;
   vault.lastActiveAt = blockTimestamp;
-  vault.releaseAt = getReleaseAt(blockTimestamp);
+  vault.releaseAt = event.params.isReleased
+    ? blockTimestamp
+    : getReleaseAt(blockTimestamp);
   vault.updatedAt = blockTimestamp;
   vault.save();
 }

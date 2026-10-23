@@ -21,12 +21,12 @@ dataSources:
         - name: Afternote
           file: ./abis/Afternote.json
       eventHandlers:
-        - event: VaultAdded(indexed uint256,indexed address,indexed bytes32,bytes32,bytes,address[])
+        - event: VaultAdded(indexed uint256,indexed address,indexed bytes32,bytes32,bytes,address[],bool)
           handler: handleVaultAdded
         - event: VaultPinged(indexed uint256,indexed address)
           handler: handleVaultPinged
         - event: VaultReleased(indexed uint256,indexed address)
           handler: handleVaultReleased
-        - event: VaultUpdated(indexed uint256,indexed address,indexed bytes32,bytes32,bytes,address[])
+        - event: VaultUpdated(indexed uint256,indexed address,indexed bytes32,bytes32,bytes,address[],bool)
           handler: handleVaultUpdated
       file: ./src/afternote.ts
