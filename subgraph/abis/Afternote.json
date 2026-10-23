@@ -37,6 +37,12 @@
         "internalType": "address[]",
         "name": "beneficiaries",
         "type": "address[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isReleased",
+        "type": "bool"
       }
     ],
     "name": "VaultAdded",
@@ -80,6 +86,12 @@
         "internalType": "address[]",
         "name": "beneficiaries",
         "type": "address[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isReleased",
+        "type": "bool"
       }
     ],
     "name": "VaultUpdated",

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
 import { useParams, Link } from "@tanstack/react-router";
 import { Encryptable, FheTypes } from "@cofhe/sdk";
@@ -8,9 +8,9 @@ import {
   Alert,
   Button,
   Card,
+  Checkbox,
   Col,
   Empty,
-  Form,
   Input,
   Result,
   Row,
@@ -31,7 +31,6 @@ import {
   DeleteOutlined,
   EditOutlined,
   LockOutlined,
-  PlusOutlined,
   ReloadOutlined,
   SaveOutlined,
   SendOutlined,
@@ -67,6 +66,7 @@ function formatTimestamp(timestamp) {
 
 export default function VaultDetails() {
   const [vault, setVault] = useState(null);
+  const savedVaultRef = useRef(null);
   const [loading, setLoading] = useState({
     read: true,
     ping: false,
@@ -74,27 +74,25 @@ export default function VaultDetails() {
     decrypt: false,
     update: false
   });
-  const [decryptedNote, setDecryptedNote] = useState("");
   const [editing, setEditing] = useState(false);
-  const [beneficiaryInput, setBeneficiaryInput] = useState("");
-  const [beneficiaries, setBeneficiaries] = useState([]);
 
   const { id } = useParams({ from: "/vaults/$id/" });
   const { address: account, isConnected, caipAddress } = useAppKitAccount();
   // caipAddress format: eip155:<chainid>:<address>
   const selectedChainId = caipAddress?.split(":")[1];
   const { walletProvider } = useAppKitProvider("eip155");
-  const [form] = Form.useForm();
   const { message } = AntdApp.useApp();
   const limits = { beneficiaries: 3 };
+  const beneficiaries = vault?.beneficiaries || [];
   const [vaultOwner, vaultIdx] = id.split("-");
 
   async function handleGetVault() {
     try {
       setLoading((prev) => ({ ...prev, read: true }));
       const data = await subgraphClient.request(GET_VAULT_BY_ID_QUERY, { id });
-      setVault(data?.vault);
-      setBeneficiaries(data?.vault?.beneficiaries || []);
+      setVault(
+        data?.vault ? { ...data.vault, content: "", releaseNow: false } : null
+      );
     } catch (error) {
       console.error("Failed to fetch vault:", error);
       message.error("Failed to get Vault. Please try again later.");
@@ -148,8 +146,9 @@ export default function VaultDetails() {
   const isOwner = vaultOwner?.toLowerCase() === account?.toLowerCase();
   const isVaultReadOnly = !isOwner || isVaultReleased;
 
-  function handleAddBeneficiary() {
-    const value = beneficiaryInput.trim();
+  function handleAddBeneficiary(input, _event, info) {
+    if (info?.source === "clear") return;
+    const value = input.trim();
     if (!isAddress(value)) {
       message.error("Please enter a valid Ethereum address.");
       return;
@@ -167,12 +166,23 @@ export default function VaultDetails() {
       return;
     }
 
-    setBeneficiaries((prev) => [...prev, value]);
-    setBeneficiaryInput("");
+    setVault((prev) => ({
+      ...prev,
+      beneficiaries: [...prev.beneficiaries, value]
+    }));
   }
 
   function handleRemoveBeneficiary(address) {
-    setBeneficiaries((prev) => prev.filter((item) => item !== address));
+    setVault((prev) => {
+      const nextBeneficiaries = prev.beneficiaries.filter(
+        (item) => item !== address
+      );
+      return {
+        ...prev,
+        beneficiaries: nextBeneficiaries,
+        releaseNow: nextBeneficiaries.length === 0 ? false : prev.releaseNow
+      };
+    });
   }
 
   async function handleDecrypt() {
@@ -190,7 +200,7 @@ export default function VaultDetails() {
       const signer = await ethersProvider.getSigner();
       const client = await getCofheClient(ethersProvider, signer);
       await client.acp.getOrCreateSelfACP();
-      const acp = await client.acp.getOrCreateSelfACP();
+      // const acp = await client.acp.getOrCreateSelfACP();
       // const isAcpValid = acp.expiration > dayjs().unix();
       // if (!isAcpValid) {
       //   console.warn(
@@ -210,7 +220,7 @@ export default function VaultDetails() {
       const aesKeyBytes = bigIntToUint8Array(decryptedAesKey);
       const note = await decryptText(ciphertextBytes, ivBytes, aesKeyBytes);
 
-      setDecryptedNote(note);
+      setVault((prev) => ({ ...prev, content: note }));
     } catch (error) {
       console.error("Decryption failed:", error);
       message.error(
@@ -294,7 +304,10 @@ export default function VaultDetails() {
     }
   }
 
-  async function handleUpdateVault(values) {
+  async function handleSave() {
+    if (!vault.content.trim()) {
+      return message.error("Please enter the note.");
+    }
     if (!isConnected || !walletProvider) {
       return message.error("Please connect your wallet first.");
     }
@@ -314,7 +327,7 @@ export default function VaultDetails() {
       const signer = await ethersProvider.getSigner();
       const client = await getCofheClient(ethersProvider, signer);
       const { aesKeyBytes, ivBytes, cipherTextBytes } = await encryptText(
-        values.note
+        vault.content
       );
 
       const aesKeyBigInt = uint8ArrayToBigInt(aesKeyBytes);
@@ -337,19 +350,20 @@ export default function VaultDetails() {
           encryptedIvInput,
           signature,
           cipherTextHex,
-          beneficiaries
+          vault.beneficiaries,
+          vault.releaseNow
         );
       await tx.wait();
       const now = dayjs().unix();
       setVault((prev) => ({
         ...prev,
-        beneficiaries,
         lastActiveAt: now,
         updatedAt: now,
-        releaseAt: now + RELEASE_DELAY_SECONDS
+        releaseAt: vault.releaseNow ? now : now + RELEASE_DELAY_SECONDS,
+        isReleased: vault.releaseNow
       }));
-      setDecryptedNote(values.note);
       setEditing(false);
+      savedVaultRef.current = null;
       message.success("Vault updated successfully.");
     } catch (error) {
       console.error("Failed to update vault:", error);
@@ -395,10 +409,9 @@ export default function VaultDetails() {
                     <Button
                       type="primary"
                       shape="round"
-                      htmlType="submit"
                       icon={<SaveOutlined />}
                       loading={loading.update}
-                      onClick={() => form.submit()}
+                      onClick={handleSave}
                     >
                       Save
                     </Button>
@@ -406,8 +419,8 @@ export default function VaultDetails() {
                       shape="round"
                       onClick={() => {
                         setEditing(false);
-                        setBeneficiaries(vault.beneficiaries || []);
-                        setBeneficiaryInput("");
+                        setVault(savedVaultRef.current);
+                        savedVaultRef.current = null;
                       }}
                     >
                       Cancel
@@ -421,14 +434,12 @@ export default function VaultDetails() {
                       shape="round"
                       icon={<EditOutlined />}
                       onClick={() => {
-                        if (!decryptedNote) {
+                        if (!vault.content) {
                           return message.warning(
                             "Please decrypt the vault before editing."
                           );
                         }
-                        setBeneficiaries(vault?.beneficiaries || []);
-                        setBeneficiaryInput("");
-                        form.setFieldsValue({ note: decryptedNote });
+                        savedVaultRef.current = vault;
                         setEditing(true);
                       }}
                       disabled={isVaultReadOnly}
@@ -446,29 +457,29 @@ export default function VaultDetails() {
             }
           >
             {editing ? (
-              <Form
-                form={form}
-                layout="vertical"
-                onFinish={handleUpdateVault}
-                initialValues={{ note: decryptedNote }}
-              >
+              <>
                 <Spin
                   fullscreen
                   spinning={loading.update}
                   description="Saving vault. Please wait..."
                   styles={{ indicator: { color: "#667eea" } }}
                 />
-                <Form.Item
-                  label="Note"
-                  name="note"
-                  rules={[
-                    { required: true, message: "Please enter the note." }
-                  ]}
-                  extra="Note will be encrypted locally before being sent on-chain."
-                >
-                  <Input.TextArea rows={16} showCount maxLength={200} />
-                </Form.Item>
-              </Form>
+                <Input.TextArea
+                  rows={16}
+                  showCount
+                  maxLength={200}
+                  value={vault.content}
+                  onChange={(event) =>
+                    setVault((prev) => ({
+                      ...prev,
+                      content: event.target.value
+                    }))
+                  }
+                />
+                <Text type="secondary">
+                  Note will be encrypted locally before being sent on-chain.
+                </Text>
+              </>
             ) : (
               <Space orientation="vertical" style={{ width: "100%" }}>
                 <Title level={3}>Vault #{vaultIdx}</Title>
@@ -497,9 +508,9 @@ export default function VaultDetails() {
                     <UsergroupAddOutlined /> {beneficiaries.length}
                   </Text>
                 </Space>
-                {decryptedNote ? (
+                {vault.content ? (
                   <Input.TextArea
-                    value={decryptedNote}
+                    value={vault.content}
                     autoSize={{ minRows: 12, maxRows: 18 }}
                     variant="outlined"
                     readOnly
@@ -541,24 +552,15 @@ export default function VaultDetails() {
               extra={`${beneficiaries.length} of ${limits.beneficiaries}`}
             >
               {editing ? (
-                <Input
+                <Input.Search
+                  key={beneficiaries.join(":")} //remounts onchange to clear input(hack)
+                  size="large"
                   placeholder="0x..."
                   maxLength={42}
-                  value={beneficiaryInput}
-                  onChange={(e) => setBeneficiaryInput(e.target.value)}
-                  onPressEnter={handleAddBeneficiary}
+                  enterButton="+ Add"
+                  allowClear
+                  onSearch={handleAddBeneficiary}
                   disabled={beneficiaries.length >= limits.beneficiaries}
-                  suffix={
-                    <Button
-                      type="primary"
-                      shape="round"
-                      icon={<PlusOutlined />}
-                      onClick={handleAddBeneficiary}
-                      disabled={beneficiaries.length >= limits.beneficiaries}
-                    >
-                      Add
-                    </Button>
-                  }
                 />
               ) : null}
 
@@ -598,6 +600,21 @@ export default function VaultDetails() {
                   </Space>
                 )}
               </div>
+              {editing && (
+                <Checkbox
+                  style={{ marginTop: 16 }}
+                  checked={vault.releaseNow}
+                  onChange={(event) =>
+                    setVault((prev) => ({
+                      ...prev,
+                      releaseNow: event.target.checked
+                    }))
+                  }
+                  disabled={beneficiaries.length === 0}
+                >
+                  Release immediately to beneficiaries
+                </Checkbox>
+              )}
             </Card>
 
             <Card

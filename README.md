@@ -12,6 +12,7 @@ The MVP is now functional with core features deployed and integrated:
 
 - Vault creation with encrypted AES key and IV protection using FHE
 - Multi-beneficiary support (up to 3 per vault)
+- Optional immediate release to beneficiaries when creating or updating a vault
 - Heartbeat mechanism (`ping`) to prove owner activity
 - Automatic unlock after inactivity threshold (10 days)
 - Vault updates (content, beneficiaries, encryption keys)
@@ -22,6 +23,7 @@ The MVP is now functional with core features deployed and integrated:
 - Landing page with onboarding flow and Web3 wallet integration
 - Vaults list view with status filtering and sort controls
 - Vault creation page with beneficiary selection
+- Immediate-release option in vault creation and update flows
 - Vault details page with metadata, timeline, and actions
 - Vault decrypt page with guided UI for beneficiary recovery
 - Ping action to reset inactivity timer
@@ -58,6 +60,7 @@ And, Plain encryption isn't enough—we need to enforce _who_ decrypts and _when
 - FHE-protected encryption keys stored in smart contract
 - Heartbeat-based inactivity tracking
 - Automatic beneficiary access grant on unlock
+- Optional immediate beneficiary access on create or update
 - No plaintext stored on-chain; hybrid private/on-chain model
 
 **Use Cases:** Recovery instructions for family, operational secrets for teams, wallet recovery material, private messages with conditions
@@ -85,11 +88,7 @@ flowchart TD
 
 ## Getting Started
 
-Bun is preferred for this project. If it isn't installed, you can install it now or run the equivalent `npm` or `npx` commands instead. Follow https://bun.com/docs/installation
-
-```bash
-curl -fsSL https://bun.sh/install | bash
-```
+[Bun](https://bun.sh) is preferred runtime for this project. If it isn't installed, insall it or run the equivalent `npm` or `npx` commands instead.
 
 ### 1. Deploying Contract (Optional)
 
@@ -202,8 +201,8 @@ struct Vault {
 
 Contract functions:
 
-- `addVault()`: Create new vault with encrypted key/IV and beneficiary list
-- `updateVault()`: Modify content, key, or beneficiaries (before release)
+- `addVault()`: Create a vault with encrypted key/IV, beneficiaries, and an optional `releaseNow` flag
+- `updateVault()`: Modify content, key, or beneficiaries, with optional immediate release
 - `ping()`: Update `lastActiveAt` to prove owner activity
 - `release()`: Grant beneficiary access after inactivity threshold
 - `getVaults()`: Retrieve all vaults for a user
@@ -213,7 +212,8 @@ Key constraints:
 
 - Max 3 beneficiaries per vault (configurable)
 - 10-day inactivity threshold for release (configurable)
-- Beneficiary access granted only at unlock time, not before
+- Beneficiaries need to be set for immediate release
+- Beneficiary access is granted at inactivity release, or immediately when requested during create/update
 - Once released, vaults cannot be modified
 
 ### 3. Cryptography Model
